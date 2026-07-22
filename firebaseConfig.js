@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
@@ -14,8 +14,8 @@ const firebaseConfig = {
   measurementId: "G-QBNYHCMY0F"
 };
 
-// Inicializar Firebase
-const app = initializeApp(firebaseConfig);
+// Inicializar Firebase (solo si no se inicializó antes para evitar errores en web)
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 // Exportar servicios
 export const db = getFirestore(app);

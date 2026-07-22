@@ -13,15 +13,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { doc, onSnapshot, updateDoc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
-
-const ADMIN_PIN = '1234'; // Default admin PIN
+import { useAuth } from '../utils/auth-context';
 
 export default function AdminScreen() {
   const router = useRouter();
-  const [authenticated, setAuthenticated] = useState(false);
-  const [pinInput, setPinInput] = useState('');
+  const { userProfile, isAdmin } = useAuth();
+  
   const [catalogTree, setCatalogTree] = useState<Record<string, any> | null>(null);
   const [loading, setLoading] = useState(true);
   const [path, setPath] = useState<string[]>([]);
@@ -29,9 +28,15 @@ export default function AdminScreen() {
   const [addingAs, setAddingAs] = useState<'subcategory' | 'item'>('item');
   const [saving, setSaving] = useState(false);
 
-  // Subscribe to catalog tree
+  // Authorization check
+  const isAuthorized = isAdmin || userProfile?.canEditCatalog;
+
   useEffect(() => {
-    if (!authenticated) return;
+    if (!isAuthorized && !loading) {
+      Alert.alert('Acceso Denegado', 'No tenés permisos para editar el catálogo.');
+      if (router.canGoBack()) router.back(); else router.replace('/');
+      return;
+    }
 
     const treeRef = doc(db, 'catalog', 'tree');
     const unsubscribe = onSnapshot(
@@ -51,19 +56,8 @@ export default function AdminScreen() {
     );
 
     return () => unsubscribe();
-  }, [authenticated]);
+  }, [isAuthorized]);
 
-  const handlePinSubmit = () => {
-    if (pinInput === ADMIN_PIN) {
-      setAuthenticated(true);
-      setPinInput('');
-    } else {
-      Alert.alert('PIN incorrecto', 'El PIN ingresado no es válido.');
-      setPinInput('');
-    }
-  };
-
-  // Get current node at path
   const getNodeAtPath = (tree: Record<string, any>, p: string[]): any => {
     let node: any = tree;
     for (const key of p) {
@@ -76,7 +70,6 @@ export default function AdminScreen() {
     return node;
   };
 
-  // Get children info
   const getChildren = (node: any): { type: 'categories' | 'finalItems' | 'empty'; items: string[] } => {
     if (node === undefined || node === null) return { type: 'empty', items: [] };
     if (Array.isArray(node)) return { type: 'finalItems', items: node };
@@ -92,11 +85,6 @@ export default function AdminScreen() {
   const children = getChildren(currentNode);
   const isRoot = path.length === 0;
 
-  // Build the Firestore update path from the navigation path
-  const buildFirestorePath = (navPath: string[]): string => {
-    return navPath.join('.');
-  };
-
   const handleAddItem = async () => {
     if (!newItemName.trim()) {
       Alert.alert('Campo vacío', 'Ingresá un nombre para el nuevo elemento.');
@@ -109,24 +97,18 @@ export default function AdminScreen() {
       setSaving(true);
       const treeRef = doc(db, 'catalog', 'tree');
 
-      // We need to read the full tree, modify it, and write it back
-      // because Firestore dot-notation updates don't work well with dynamic keys containing special chars
       const snapshot = await getDoc(treeRef);
       const fullTree = snapshot.exists() ? { ...snapshot.data() } : {};
 
-      // Navigate to the target node and modify it
       if (path.length === 0) {
-        // Adding at root level
         if (addingAs === 'subcategory') {
           fullTree[name] = {};
         } else {
-          // Can't add final items at root
           Alert.alert('Error', 'No se pueden agregar ítems finales en el nivel raíz. Agregá una subcategoría.');
           setSaving(false);
           return;
         }
       } else {
-        // Navigate to parent node
         let parent: any = fullTree;
         for (let i = 0; i < path.length - 1; i++) {
           parent = parent[path[i]];
@@ -135,9 +117,7 @@ export default function AdminScreen() {
         let target = parent[lastKey];
 
         if (Array.isArray(target)) {
-          // Current node is an array of final items
           if (addingAs === 'subcategory') {
-            // Convert array to object, keeping existing items
             const newObj: Record<string, any> = {};
             for (const existingItem of target) {
               newObj[existingItem] = [];
@@ -145,7 +125,6 @@ export default function AdminScreen() {
             newObj[name] = {};
             parent[lastKey] = newObj;
           } else {
-            // Add to the array
             if (target.includes(name)) {
               Alert.alert('Duplicado', `"${name}" ya existe en esta categoría.`);
               setSaving(false);
@@ -154,7 +133,6 @@ export default function AdminScreen() {
             target.push(name);
           }
         } else if (typeof target === 'object' && target !== null) {
-          // Current node is an object (has subcategories)
           if (target[name] !== undefined) {
             Alert.alert('Duplicado', `"${name}" ya existe en esta categoría.`);
             setSaving(false);
@@ -187,10 +165,8 @@ export default function AdminScreen() {
       const fullTree = snapshot.exists() ? { ...snapshot.data() } : {};
 
       if (path.length === 0) {
-        // Deleting at root level
         delete fullTree[itemName];
       } else {
-        // Navigate to parent and delete
         let parent: any = fullTree;
         for (let i = 0; i < path.length - 1; i++) {
           parent = parent[path[i]];
@@ -239,56 +215,17 @@ export default function AdminScreen() {
     }
   };
 
-  // PIN Screen
-  if (!authenticated) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} activeOpacity={0.7}>
-            <Text style={styles.backBtnText}>← Volver</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Panel Admin</Text>
-          <View style={{ width: 70 }} />
-        </View>
-
-        <View style={styles.pinContainer}>
-          <Text style={styles.pinIcon}>🔒</Text>
-          <Text style={styles.pinTitle}>Acceso restringido</Text>
-          <Text style={styles.pinSubtitle}>Ingresá el PIN de administrador</Text>
-          <TextInput
-            style={styles.pinInput}
-            value={pinInput}
-            onChangeText={setPinInput}
-            placeholder="PIN"
-            placeholderTextColor="#484f58"
-            keyboardType="number-pad"
-            secureTextEntry
-            maxLength={10}
-            textAlign="center"
-            onSubmitEditing={handlePinSubmit}
-          />
-          <TouchableOpacity
-            style={styles.pinBtn}
-            onPress={handlePinSubmit}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.pinBtnText}>Ingresar</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  if (!isAuthorized) return null;
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => {
             if (path.length > 0) {
               setPath((prev) => prev.slice(0, -1));
             } else {
-              router.back();
+              if (router.canGoBack()) router.back(); else router.replace('/');
             }
           }}
           style={styles.backBtn}
@@ -298,11 +235,42 @@ export default function AdminScreen() {
             {path.length > 0 ? '← Atrás' : '← Volver'}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>⚙️ Admin</Text>
+        <Text style={styles.headerTitle}>⚙️ Admin Catálogo</Text>
         <View style={{ width: 70 }} />
       </View>
 
-      {/* Breadcrumb */}
+      {/* Admin actions (only for main admin) */}
+      {isAdmin && isRoot && (
+        <View style={styles.adminActionsBar}>
+          <Text style={styles.adminPanelTitle}>Panel de Control</Text>
+          <View style={styles.adminActionGrid}>
+            <TouchableOpacity 
+              style={styles.adminActionBtn} 
+              onPress={() => router.push('/user-management')}
+            >
+              <Text style={styles.adminActionIcon}>👥</Text>
+              <Text style={styles.adminActionText}>Usuarios</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.adminActionBtn, { borderColor: '#d29922' }]} 
+              onPress={() => router.push('/requests')}
+            >
+              <Text style={styles.adminActionIcon}>🛒</Text>
+              <Text style={styles.adminActionText}>Solicitudes</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.adminActionBtn, { borderColor: '#3fb950' }]} 
+              onPress={() => router.push('/dashboard')}
+            >
+              <Text style={styles.adminActionIcon}>📊</Text>
+              <Text style={styles.adminActionText}>Dashboard</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
       {!isRoot && (
         <View style={styles.breadcrumbContainer}>
           <TouchableOpacity onPress={() => setPath([])}>
@@ -315,12 +283,7 @@ export default function AdminScreen() {
                 onPress={() => setPath(path.slice(0, i + 1))}
                 disabled={i === path.length - 1}
               >
-                <Text
-                  style={[
-                    styles.breadcrumbLink,
-                    i === path.length - 1 && styles.breadcrumbActive,
-                  ]}
-                >
+                <Text style={[styles.breadcrumbLink, i === path.length - 1 && styles.breadcrumbActive]}>
                   {segment}
                 </Text>
               </TouchableOpacity>
@@ -334,17 +297,13 @@ export default function AdminScreen() {
           <ActivityIndicator size="large" color="#00e5ff" />
         </View>
       ) : (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1 }}
-        >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <ScrollView
             style={{ flex: 1 }}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Current items */}
             <Text style={styles.sectionTitle}>
               {isRoot ? 'Categorías principales' : `Contenido de "${path[path.length - 1]}"`}
             </Text>
@@ -370,11 +329,7 @@ export default function AdminScreen() {
                 <View key={item} style={styles.itemRow}>
                   <TouchableOpacity
                     style={styles.itemRowContent}
-                    onPress={() => {
-                      if (isCategory) {
-                        setPath([...path, item]);
-                      }
-                    }}
+                    onPress={() => { if (isCategory) setPath([...path, item]); }}
                     activeOpacity={isCategory ? 0.7 : 1}
                   >
                     <Text style={styles.itemRowIcon}>
@@ -402,44 +357,26 @@ export default function AdminScreen() {
               );
             })}
 
-            {/* Add new item section */}
             <View style={styles.addSection}>
               <Text style={styles.addTitle}>➕ Agregar nuevo</Text>
 
-              {/* Type selector */}
               <View style={styles.typeRow}>
                 <TouchableOpacity
-                  style={[
-                    styles.typeBtn,
-                    addingAs === 'subcategory' && styles.typeBtnActive,
-                  ]}
+                  style={[styles.typeBtn, addingAs === 'subcategory' && styles.typeBtnActive]}
                   onPress={() => setAddingAs('subcategory')}
                   activeOpacity={0.7}
                 >
-                  <Text
-                    style={[
-                      styles.typeBtnText,
-                      addingAs === 'subcategory' && styles.typeBtnTextActive,
-                    ]}
-                  >
+                  <Text style={[styles.typeBtnText, addingAs === 'subcategory' && styles.typeBtnTextActive]}>
                     📁 Subcategoría
                   </Text>
                 </TouchableOpacity>
                 {!isRoot && (
                   <TouchableOpacity
-                    style={[
-                      styles.typeBtn,
-                      addingAs === 'item' && styles.typeBtnActive,
-                    ]}
+                    style={[styles.typeBtn, addingAs === 'item' && styles.typeBtnActive]}
                     onPress={() => setAddingAs('item')}
                     activeOpacity={0.7}
                   >
-                    <Text
-                      style={[
-                        styles.typeBtnText,
-                        addingAs === 'item' && styles.typeBtnTextActive,
-                      ]}
-                    >
+                    <Text style={[styles.typeBtnText, addingAs === 'item' && styles.typeBtnTextActive]}>
                       📄 Ítem final
                     </Text>
                   </TouchableOpacity>
@@ -450,11 +387,7 @@ export default function AdminScreen() {
                 style={styles.addInput}
                 value={newItemName}
                 onChangeText={setNewItemName}
-                placeholder={
-                  addingAs === 'subcategory'
-                    ? 'Nombre de la subcategoría...'
-                    : 'Nombre del ítem final...'
-                }
+                placeholder={addingAs === 'subcategory' ? 'Nombre de la subcategoría...' : 'Nombre del ítem final...'}
                 placeholderTextColor="#484f58"
               />
 
@@ -479,241 +412,44 @@ export default function AdminScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0d1117',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#21262d',
-  },
-  backBtn: {
-    paddingVertical: 6,
-    paddingRight: 12,
-  },
-  backBtnText: {
-    color: '#58a6ff',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  headerTitle: {
-    color: '#f0f6fc',
-    fontSize: 18,
-    fontWeight: 'bold',
-    flex: 1,
-    textAlign: 'center',
-  },
+  container: { flex: 1, backgroundColor: '#0d1117' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#21262d', backgroundColor: '#161b22' },
+  backBtn: { paddingVertical: 6, paddingRight: 12 },
+  backBtnText: { color: '#58a6ff', fontSize: 15, fontWeight: '600' },
+  headerTitle: { color: '#f0f6fc', fontSize: 18, fontWeight: 'bold', flex: 1, textAlign: 'center' },
+  
+  adminActionsBar: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#30363d', backgroundColor: '#0d1117' },
+  adminPanelTitle: { color: '#8b949e', fontSize: 13, textTransform: 'uppercase', fontWeight: 'bold', marginBottom: 12 },
+  adminActionGrid: { flexDirection: 'row', gap: 10, justifyContent: 'space-between' },
+  adminActionBtn: { flex: 1, backgroundColor: '#161b22', borderColor: '#30363d', borderWidth: 1, borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  adminActionIcon: { fontSize: 24, marginBottom: 6 },
+  adminActionText: { color: '#f0f6fc', fontSize: 12, fontWeight: '600' },
 
-  // Breadcrumb
-  breadcrumbContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    flexWrap: 'wrap',
-    borderBottomWidth: 1,
-    borderBottomColor: '#21262d',
-  },
-  breadcrumbLink: {
-    color: '#58a6ff',
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  breadcrumbActive: {
-    color: '#f0f6fc',
-    fontWeight: 'bold',
-  },
-  breadcrumbSeparator: {
-    color: '#484f58',
-    fontSize: 13,
-  },
-
-  // PIN
-  pinContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 30,
-  },
-  pinIcon: {
-    fontSize: 64,
-    marginBottom: 20,
-  },
-  pinTitle: {
-    color: '#f0f6fc',
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  pinSubtitle: {
-    color: '#8b949e',
-    fontSize: 14,
-    marginBottom: 24,
-  },
-  pinInput: {
-    backgroundColor: '#161b22',
-    color: '#f0f6fc',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    fontSize: 28,
-    fontWeight: 'bold',
-    width: 200,
-    marginBottom: 16,
-    letterSpacing: 8,
-  },
-  pinBtn: {
-    backgroundColor: '#1f6feb',
-    borderRadius: 10,
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-  },
-  pinBtnText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-
-  // Content
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  sectionTitle: {
-    color: '#f0f6fc',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  sectionSubtitle: {
-    color: '#8b949e',
-    fontSize: 13,
-    marginBottom: 16,
-  },
-
-  // Item rows
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#161b22',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 8,
-    overflow: 'hidden',
-  },
-  itemRowContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    gap: 12,
-  },
-  itemRowIcon: {
-    fontSize: 20,
-  },
-  itemRowName: {
-    color: '#f0f6fc',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  itemRowSub: {
-    color: '#8b949e',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  chevron: {
-    color: '#484f58',
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  deleteBtn: {
-    padding: 14,
-    borderLeftWidth: 1,
-    borderLeftColor: '#30363d',
-  },
-  deleteBtnText: {
-    fontSize: 18,
-  },
-
-  // Add section
-  addSection: {
-    marginTop: 20,
-    backgroundColor: '#161b22',
-    borderColor: '#1f6feb',
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 16,
-  },
-  addTitle: {
-    color: '#f0f6fc',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 14,
-  },
-  typeRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 14,
-  },
-  typeBtn: {
-    flex: 1,
-    backgroundColor: '#0d1117',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  typeBtnActive: {
-    backgroundColor: '#1f3a5f',
-    borderColor: '#1f6feb',
-  },
-  typeBtnText: {
-    color: '#8b949e',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  typeBtnTextActive: {
-    color: '#58a6ff',
-  },
-  addInput: {
-    backgroundColor: '#0d1117',
-    color: '#f0f6fc',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-    marginBottom: 12,
-  },
-  addBtn: {
-    backgroundColor: '#238636',
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  btnDisabled: {
-    opacity: 0.5,
-  },
-  addBtnText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-
-  // Loading
-  loadingBox: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  breadcrumbContainer: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, flexWrap: 'wrap', borderBottomWidth: 1, borderBottomColor: '#21262d' },
+  breadcrumbLink: { color: '#58a6ff', fontSize: 13, fontWeight: '500' },
+  breadcrumbActive: { color: '#f0f6fc', fontWeight: 'bold' },
+  breadcrumbSeparator: { color: '#484f58', fontSize: 13 },
+  scrollContent: { padding: 16, paddingBottom: 40 },
+  sectionTitle: { color: '#f0f6fc', fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
+  sectionSubtitle: { color: '#8b949e', fontSize: 13, marginBottom: 16 },
+  itemRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#161b22', borderColor: '#30363d', borderWidth: 1, borderRadius: 10, marginBottom: 8, overflow: 'hidden' },
+  itemRowContent: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
+  itemRowIcon: { fontSize: 20 },
+  itemRowName: { color: '#f0f6fc', fontSize: 15, fontWeight: '600' },
+  itemRowSub: { color: '#8b949e', fontSize: 12, marginTop: 2 },
+  chevron: { color: '#484f58', fontSize: 22, fontWeight: 'bold' },
+  deleteBtn: { padding: 14, borderLeftWidth: 1, borderLeftColor: '#30363d' },
+  deleteBtnText: { fontSize: 18 },
+  addSection: { marginTop: 20, backgroundColor: '#161b22', borderColor: '#1f6feb', borderWidth: 1, borderRadius: 14, padding: 16 },
+  addTitle: { color: '#f0f6fc', fontSize: 16, fontWeight: 'bold', marginBottom: 14 },
+  typeRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
+  typeBtn: { flex: 1, backgroundColor: '#0d1117', borderColor: '#30363d', borderWidth: 1, borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
+  typeBtnActive: { backgroundColor: '#1f3a5f', borderColor: '#1f6feb' },
+  typeBtnText: { color: '#8b949e', fontSize: 13, fontWeight: '600' },
+  typeBtnTextActive: { color: '#58a6ff' },
+  addInput: { backgroundColor: '#0d1117', color: '#f0f6fc', borderColor: '#30363d', borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, marginBottom: 12 },
+  addBtn: { backgroundColor: '#238636', borderRadius: 10, paddingVertical: 14, alignItems: 'center' },
+  btnDisabled: { opacity: 0.5 },
+  addBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });
