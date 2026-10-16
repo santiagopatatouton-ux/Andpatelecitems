@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,14 +10,17 @@ import {
   BackHandler,
   Dimensions,
   Platform,
+  TextInput,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, collection } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { seedCatalog } from '../utils/seed-catalog';
 import { CATEGORY_ICONS } from '../utils/catalog-data';
+import { useAuth } from '../context/auth-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const isTablet = SCREEN_WIDTH >= 600;
@@ -36,7 +39,6 @@ function getNodeAtPath(tree: Record<string, any>, path: string[]): any {
 }
 
 // Determine what the children of a node are
-// Returns: { type: 'categories', items: string[] } | { type: 'finalItems', items: string[] } | { type: 'empty' }
 function getChildren(node: any): { type: 'categories' | 'finalItems' | 'empty'; items: string[] } {
   if (node === undefined || node === null) {
     return { type: 'empty', items: [] };
@@ -54,12 +56,79 @@ function getChildren(node: any): { type: 'categories' | 'finalItems' | 'empty'; 
   return { type: 'empty', items: [] };
 }
 
+// Flatten the catalog tree into searchable entries
+interface SearchEntry {
+  name: string;
+  path: string[];
+  type: 'category' | 'item';
+  fullPath: string; // for display
+}
+
+function flattenTree(node: any, currentPath: string[] = []): SearchEntry[] {
+  const results: SearchEntry[] = [];
+  if (!node || typeof node !== 'object') return results;
+
+  if (Array.isArray(node)) {
+    for (const item of node) {
+      results.push({
+        name: item,
+        path: [...currentPath, item],
+        type: 'item',
+        fullPath: [...currentPath, item].join(' › '),
+      });
+    }
+  } else {
+    for (const key of Object.keys(node)) {
+      results.push({
+        name: key,
+        path: [...currentPath, key],
+        type: Array.isArray(node[key]) ? 'category' : 'category',
+        fullPath: [...currentPath, key].join(' › '),
+      });
+      results.push(...flattenTree(node[key], [...currentPath, key]));
+    }
+  }
+
+  return results;
+}
+
+// Generate a Firestore-safe document ID from a path array
+function pathToDocId(pathArray: string[]): string {
+  return pathArray.join('__').replace(/[\/\.]/g, '_');
+}
+
+interface StockAlert {
+  path: string[];
+  stock: number;
+  itemName: string;
+}
+
+type StockFilter = 'all' | 'available' | 'low' | 'zero';
+
+interface StockData {
+  [docId: string]: { stock: number; path: string[] };
+}
+
 export default function HomeScreen() {
   const [catalogTree, setCatalogTree] = useState<Record<string, any> | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [permissionError, setPermissionError] = useState<boolean>(false);
-  const [path, setPath] = useState<string[]>([]); // current navigation path
+  const [path, setPath] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [stockAlerts, setStockAlerts] = useState<StockAlert[]>([]);
+  const [showAlerts, setShowAlerts] = useState(false);
+  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
+  const [allStockData, setAllStockData] = useState<StockData>({});
   const router = useRouter();
+  const { userProfile, isAdmin, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (e) {
+      console.error('Error signing out:', e);
+    }
+  };
 
   // Seed catalog on first load + subscribe to real-time updates
   useEffect(() => {
@@ -67,13 +136,11 @@ export default function HomeScreen() {
 
     const init = async () => {
       try {
-        // Seed catalog if it doesn't exist
         await seedCatalog();
       } catch (e) {
         console.log('Seed error (may be permission):', e);
       }
 
-      // Subscribe to real-time updates on catalog/tree
       const treeRef = doc(db, 'catalog', 'tree');
       unsubscribe = onSnapshot(
         treeRef,
@@ -105,48 +172,109 @@ export default function HomeScreen() {
     };
   }, []);
 
-  // Handle Android back button: go up one level or double-press to exit
+  // Subscribe to stock collection for low stock alerts + all stock data for filters
+  useEffect(() => {
+    const stockRef = collection(db, 'stock');
+    const unsubscribe = onSnapshot(
+      stockRef,
+      (snapshot) => {
+        const alerts: StockAlert[] = [];
+        const stockMap: StockData = {};
+        snapshot.docs.forEach((d) => {
+          const data = d.data();
+          if (data.path) {
+            const key = data.path.join('__').replace(/[\/\.]/g, '_');
+            stockMap[key] = { stock: data.stock || 0, path: data.path };
+          }
+          if (data.stock !== undefined && data.stock <= 5) {
+            alerts.push({
+              path: data.path || [],
+              stock: data.stock,
+              itemName: data.path ? data.path[data.path.length - 1] : d.id,
+            });
+          }
+        });
+        // Sort: zero stock first, then by stock ascending
+        alerts.sort((a, b) => a.stock - b.stock);
+        setStockAlerts(alerts);
+        setAllStockData(stockMap);
+      },
+      (error) => {
+        console.error('Error loading stock alerts:', error);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+
+  // Handle Android back button
   useEffect(() => {
     const backAction = () => {
+      if (stockFilter !== 'all') {
+        setStockFilter('all');
+        return true;
+      }
+      if (searchQuery) {
+        setSearchQuery('');
+        return true;
+      }
       if (path.length > 0) {
         setPath((prev) => prev.slice(0, -1));
         return true;
       }
-      // At root, let default behavior happen (or exit)
       return false;
     };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
     return () => backHandler.remove();
-  }, [path]);
+  }, [path, searchQuery, stockFilter]);
 
-  // Hide splash screen once content is ready
   const onLayoutReady = useCallback(async () => {
     await SplashScreen.hideAsync();
   }, []);
+
+  // Search results
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim() || !catalogTree) return [];
+    const allEntries = flattenTree(catalogTree);
+    const q = searchQuery.toLowerCase().trim();
+    return allEntries.filter(
+      (entry) =>
+        entry.name.toLowerCase().includes(q) ||
+        entry.fullPath.toLowerCase().includes(q)
+    );
+  }, [searchQuery, catalogTree]);
+
+  // Stock-filtered items (flat list of all items matching the stock filter)
+  const stockFilteredItems = useMemo(() => {
+    if (stockFilter === 'all' || !catalogTree) return [];
+    const allItems = flattenTree(catalogTree).filter((e) => e.type === 'item');
+    return allItems.filter((entry) => {
+      const docId = entry.path.join('__').replace(/[\/\.]/g, '_');
+      const stockInfo = allStockData[docId];
+      const currentStock = stockInfo?.stock ?? 0;
+      switch (stockFilter) {
+        case 'available': return currentStock > 5;
+        case 'low': return currentStock > 0 && currentStock <= 5;
+        case 'zero': return currentStock <= 0;
+        default: return true;
+      }
+    });
+  }, [stockFilter, catalogTree, allStockData]);
 
   const handleCategoryPress = (item: string) => {
     if (!catalogTree) return;
 
     const newPath = [...path, item];
     const node = getNodeAtPath(catalogTree, newPath);
-    const children = getChildren(node);
+    const childrenResult = getChildren(node);
 
-    if (children.type === 'finalItems' && children.items.length > 0) {
-      // This node has an array of final items -> show them as next level
+    if (childrenResult.type === 'finalItems' && childrenResult.items.length > 0) {
       setPath(newPath);
-    } else if (children.type === 'categories') {
-      // This node has sub-categories -> drill down
+    } else if (childrenResult.type === 'categories') {
       setPath(newPath);
-    } else if (children.type === 'empty' && typeof node === 'object' && !Array.isArray(node)) {
-      // Empty category (like "Varios")
+    } else if (childrenResult.type === 'empty' && typeof node === 'object' && !Array.isArray(node)) {
       setPath(newPath);
     } else {
-      // This IS a final item (a string in an array) -> go to action screen
       router.push({
         pathname: '/action',
         params: { path: JSON.stringify(newPath) },
@@ -162,23 +290,37 @@ export default function HomeScreen() {
     });
   };
 
+  const handleSearchResultPress = (entry: SearchEntry) => {
+    setSearchQuery('');
+    if (entry.type === 'item') {
+      // Navigate to the item's parent and let them click
+      router.push({
+        pathname: '/action',
+        params: { path: JSON.stringify(entry.path) },
+      });
+    } else {
+      // Navigate to this category
+      setPath(entry.path);
+    }
+  };
+
   const goBack = () => {
     if (path.length > 0) {
       setPath((prev) => prev.slice(0, -1));
     }
   };
 
-  // Current node based on path
   const currentNode = catalogTree ? getNodeAtPath(catalogTree, path) : null;
   const children = getChildren(currentNode);
   const isRoot = path.length === 0;
 
-  // Get icon for an item
   const getIcon = (item: string, depth: number) => {
     if (depth === 0) return CATEGORY_ICONS[item] || '📁';
-    // Sub-levels
     return '▸';
   };
+
+  const zeroStockCount = stockAlerts.filter((a) => a.stock === 0).length;
+  const lowStockCount = stockAlerts.filter((a) => a.stock > 0).length;
 
   const renderCategoryCard = ({ item, index }: { item: string; index: number }) => {
     const depth = path.length;
@@ -223,12 +365,15 @@ export default function HomeScreen() {
     );
   };
 
+  const isSearching = searchQuery.trim().length > 0;
+  const isStockFiltering = stockFilter !== 'all';
+
   return (
     <SafeAreaView style={styles.container} onLayout={onLayoutReady}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          {!isRoot ? (
+          {!isRoot && !isSearching ? (
             <TouchableOpacity onPress={goBack} style={styles.backBtn} activeOpacity={0.7}>
               <Text style={styles.backBtnText}>← Atrás</Text>
             </TouchableOpacity>
@@ -237,93 +382,315 @@ export default function HomeScreen() {
               <Text style={styles.headerIcon}>⚡</Text>
               <View>
                 <Text style={styles.headerTitle}>Andpatelec</Text>
-                <Text style={styles.headerSubtitle}>Gestión de Materiales</Text>
+                <Text style={styles.headerSubtitle}>
+                  {userProfile ? `Hola, ${userProfile.displayName.split(' ')[0]}` : 'Gestión de Materiales'}
+                </Text>
               </View>
             </>
           )}
         </View>
-        {isRoot && (
-          <TouchableOpacity
-            style={styles.btnAdmin}
-            onPress={() => router.push('/admin')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.btnAdminText}>⚙️</Text>
+      </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Text style={styles.searchIcon}>🔍</Text>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar artículos, categorías..."
+          placeholderTextColor="#484f58"
+          value={searchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            if (text.trim()) setPath([]); // reset path when searching
+          }}
+          autoCorrect={false}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.searchClear}>
+            <Text style={styles.searchClearText}>✕</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Breadcrumb */}
-      {!isRoot && (
-        <View style={styles.breadcrumbContainer}>
-          <TouchableOpacity onPress={() => setPath([])}>
-            <Text style={styles.breadcrumbLink}>Inicio</Text>
-          </TouchableOpacity>
-          {path.map((segment, i) => (
-            <React.Fragment key={i}>
-              <Text style={styles.breadcrumbSeparator}> › </Text>
-              <TouchableOpacity
-                onPress={() => setPath(path.slice(0, i + 1))}
-                disabled={i === path.length - 1}
+      {/* Stock Availability Filters */}
+      {isRoot && !isSearching && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.stockFilterScroll}
+          contentContainerStyle={styles.stockFilterContent}
+        >
+          {([
+            { key: 'all' as StockFilter, label: '📦 Todos' },
+            { key: 'available' as StockFilter, label: '🟢 Disponible' },
+            { key: 'low' as StockFilter, label: '🟡 Stock bajo' },
+            { key: 'zero' as StockFilter, label: '🔴 Sin stock' },
+          ]).map((filter) => (
+            <TouchableOpacity
+              key={filter.key}
+              style={[
+                styles.stockFilterChip,
+                stockFilter === filter.key && styles.stockFilterChipActive,
+              ]}
+              onPress={() => setStockFilter(filter.key)}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  styles.stockFilterText,
+                  stockFilter === filter.key && styles.stockFilterTextActive,
+                ]}
               >
-                <Text
-                  style={[
-                    styles.breadcrumbLink,
-                    i === path.length - 1 && styles.breadcrumbActive,
-                  ]}
-                >
-                  {segment}
+                {filter.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
+
+      {/* Stock Alerts Banner */}
+      {stockAlerts.length > 0 && isRoot && !isSearching && (
+        <TouchableOpacity
+          style={styles.alertBanner}
+          onPress={() => setShowAlerts(!showAlerts)}
+          activeOpacity={0.8}
+        >
+          <View style={styles.alertBannerContent}>
+            <Text style={styles.alertBannerIcon}>
+              {zeroStockCount > 0 ? '🔴' : '🟡'}
+            </Text>
+            <Text style={styles.alertBannerText}>
+              {zeroStockCount > 0
+                ? `${zeroStockCount} sin stock`
+                : ''}
+              {zeroStockCount > 0 && lowStockCount > 0 ? ' · ' : ''}
+              {lowStockCount > 0
+                ? `${lowStockCount} stock bajo`
+                : ''}
+            </Text>
+            <Text style={styles.alertBannerArrow}>
+              {showAlerts ? '▲' : '▼'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
+
+      {/* Expanded Alerts */}
+      {showAlerts && isRoot && !isSearching && (
+        <ScrollView style={styles.alertList} nestedScrollEnabled>
+          {stockAlerts.map((alert, idx) => (
+            <TouchableOpacity
+              key={idx}
+              style={styles.alertItem}
+              onPress={() => {
+                setShowAlerts(false);
+                router.push({
+                  pathname: '/action',
+                  params: { path: JSON.stringify(alert.path) },
+                });
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.alertItemIcon}>
+                {alert.stock === 0 ? '🔴' : '🟡'}
+              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.alertItemName}>{alert.itemName}</Text>
+                <Text style={styles.alertItemPath}>
+                  {alert.path.slice(0, -1).join(' › ')}
+                </Text>
+              </View>
+              <Text style={[
+                styles.alertItemStock,
+                alert.stock === 0 ? styles.stockZero : styles.stockLow,
+              ]}>
+                {alert.stock}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
+
+      {/* Search Results */}
+      {isSearching ? (
+        <FlatList
+          data={searchResults}
+          keyExtractor={(item, idx) => item.fullPath + idx}
+          contentContainerStyle={styles.searchResultsList}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <Text style={styles.searchResultsHeader}>
+              {searchResults.length} resultado{searchResults.length !== 1 ? 's' : ''} para "{searchQuery}"
+            </Text>
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyBox}>
+              <Text style={styles.emptyIcon}>🔍</Text>
+              <Text style={styles.emptyTitle}>Sin resultados</Text>
+              <Text style={styles.emptyText}>
+                No se encontraron artículos ni categorías con ese nombre.
+              </Text>
+            </View>
+          }
+          renderItem={({ item: entry }) => (
+            <TouchableOpacity
+              style={styles.searchResultItem}
+              onPress={() => handleSearchResultPress(entry)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.searchResultIcon}>
+                {entry.type === 'category' ? '📁' : '📄'}
+              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.searchResultName}>{entry.name}</Text>
+                <Text style={styles.searchResultPath}>{entry.fullPath}</Text>
+              </View>
+              <View style={[
+                styles.searchResultBadge,
+                entry.type === 'item' ? styles.searchBadgeItem : styles.searchBadgeCategory,
+              ]}>
+                <Text style={styles.searchResultBadgeText}>
+                  {entry.type === 'item' ? 'Artículo' : 'Carpeta'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      ) : isStockFiltering ? (
+        /* Stock-filtered flat list */
+        <FlatList
+          data={stockFilteredItems}
+          keyExtractor={(item, idx) => item.fullPath + idx}
+          contentContainerStyle={styles.searchResultsList}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <Text style={styles.searchResultsHeader}>
+              {stockFilteredItems.length} ítem{stockFilteredItems.length !== 1 ? 's' : ''}
+              {stockFilter === 'available' ? ' disponibles' : stockFilter === 'low' ? ' con stock bajo' : ' sin stock'}
+            </Text>
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyBox}>
+              <Text style={styles.emptyIcon}>
+                {stockFilter === 'zero' ? '✅' : '📦'}
+              </Text>
+              <Text style={styles.emptyTitle}>
+                {stockFilter === 'zero' ? '¡Todo en stock!' : 'Sin resultados'}
+              </Text>
+              <Text style={styles.emptyText}>
+                {stockFilter === 'zero'
+                  ? 'No hay ítems sin stock.'
+                  : 'No se encontraron ítems con ese filtro.'}
+              </Text>
+            </View>
+          }
+          renderItem={({ item: entry }) => {
+            const docId = entry.path.join('__').replace(/[\/\.]/g, '_');
+            const stockInfo = allStockData[docId];
+            const currentStock = stockInfo?.stock ?? 0;
+            return (
+              <TouchableOpacity
+                style={styles.searchResultItem}
+                onPress={() => {
+                  router.push({
+                    pathname: '/action',
+                    params: { path: JSON.stringify(entry.path) },
+                  });
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.searchResultIcon}>
+                  {currentStock <= 0 ? '🔴' : currentStock <= 5 ? '🟡' : '🟢'}
+                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.searchResultName}>{entry.name}</Text>
+                  <Text style={styles.searchResultPath}>{entry.fullPath}</Text>
+                </View>
+                <Text style={[
+                  styles.stockFilterBadgeNum,
+                  currentStock <= 0 ? { color: '#f85149' } : currentStock <= 5 ? { color: '#d29922' } : { color: '#3fb950' },
+                ]}>
+                  {currentStock}
                 </Text>
               </TouchableOpacity>
-            </React.Fragment>
-          ))}
-        </View>
-      )}
-
-      {/* Current level title */}
-      {!isRoot && (
-        <View style={styles.levelTitleContainer}>
-          <Text style={styles.levelTitle}>{path[path.length - 1]}</Text>
-          <Text style={styles.levelCount}>
-            {children.items.length} {children.type === 'finalItems' ? 'ítems' : 'subcategorías'}
-          </Text>
-        </View>
-      )}
-
-      {/* Main Content */}
-      {loading ? (
-        <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color="#00e5ff" />
-          <Text style={styles.loadingText}>Cargando catálogo...</Text>
-        </View>
-      ) : permissionError ? (
-        <View style={styles.errorCard}>
-          <Text style={styles.errorCardTitle}>⚠️ Error de Permisos en Firebase</Text>
-          <Text style={styles.errorCardText}>
-            Firebase rechazó el acceso. Verificá las Reglas de Seguridad de Firestore.
-          </Text>
-        </View>
-      ) : children.items.length === 0 ? (
-        <View style={styles.emptyBox}>
-          <Text style={styles.emptyIcon}>📦</Text>
-          <Text style={styles.emptyTitle}>
-            {isRoot ? 'Catálogo vacío' : 'Sin ítems en esta categoría'}
-          </Text>
-          <Text style={styles.emptyText}>
-            Un administrador puede agregar categorías desde el panel de admin (⚙️).
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={children.items}
-          keyExtractor={(item) => item}
-          numColumns={isTablet ? 3 : 2}
-          key={isTablet ? 'grid-tablet' : 'grid-phone'}
-          contentContainerStyle={styles.listContent}
-          columnWrapperStyle={styles.columnWrapper}
-          showsVerticalScrollIndicator={false}
-          renderItem={renderCategoryCard}
+            );
+          }}
         />
+      ) : (
+        <>
+          {/* Breadcrumb */}
+          {!isRoot && (
+            <View style={styles.breadcrumbContainer}>
+              <TouchableOpacity onPress={() => setPath([])}>
+                <Text style={styles.breadcrumbLink}>Inicio</Text>
+              </TouchableOpacity>
+              {path.map((segment, i) => (
+                <React.Fragment key={i}>
+                  <Text style={styles.breadcrumbSeparator}> › </Text>
+                  <TouchableOpacity
+                    onPress={() => setPath(path.slice(0, i + 1))}
+                    disabled={i === path.length - 1}
+                  >
+                    <Text
+                      style={[
+                        styles.breadcrumbLink,
+                        i === path.length - 1 && styles.breadcrumbActive,
+                      ]}
+                    >
+                      {segment}
+                    </Text>
+                  </TouchableOpacity>
+                </React.Fragment>
+              ))}
+            </View>
+          )}
+
+          {/* Current level title */}
+          {!isRoot && (
+            <View style={styles.levelTitleContainer}>
+              <Text style={styles.levelTitle}>{path[path.length - 1]}</Text>
+              <Text style={styles.levelCount}>
+                {children.items.length} {children.type === 'finalItems' ? 'ítems' : 'subcategorías'}
+              </Text>
+            </View>
+          )}
+
+          {/* Main Content */}
+          {loading ? (
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="large" color="#00e5ff" />
+              <Text style={styles.loadingText}>Cargando catálogo...</Text>
+            </View>
+          ) : permissionError ? (
+            <View style={styles.errorCard}>
+              <Text style={styles.errorCardTitle}>⚠️ Error de Permisos en Firebase</Text>
+              <Text style={styles.errorCardText}>
+                Firebase rechazó el acceso. Verificá las Reglas de Seguridad de Firestore.
+              </Text>
+            </View>
+          ) : children.items.length === 0 ? (
+            <View style={styles.emptyBox}>
+              <Text style={styles.emptyIcon}>📦</Text>
+              <Text style={styles.emptyTitle}>
+                {isRoot ? 'Catálogo vacío' : 'Sin ítems en esta categoría'}
+              </Text>
+              <Text style={styles.emptyText}>
+                Un administrador puede agregar categorías desde el panel de admin (⚙️).
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={children.items}
+              keyExtractor={(item) => item}
+              numColumns={isTablet ? 3 : 2}
+              key={isTablet ? 'grid-tablet' : 'grid-phone'}
+              contentContainerStyle={styles.listContent}
+              columnWrapperStyle={styles.columnWrapper}
+              showsVerticalScrollIndicator={false}
+              renderItem={renderCategoryCard}
+            />
+          )}
+        </>
       )}
     </SafeAreaView>
   );
@@ -368,18 +735,162 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  btnAdmin: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#161b22',
-    borderWidth: 1,
-    borderColor: '#30363d',
-    justifyContent: 'center',
-    alignItems: 'center',
+  headerButtons: {
+    display: 'none',
   },
-  btnAdminText: {
-    fontSize: 20,
+
+  // Search bar
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#161b22',
+    borderColor: '#30363d',
+    borderWidth: 1,
+    borderRadius: 10,
+    marginHorizontal: 16,
+    marginBottom: 10,
+    paddingHorizontal: 12,
+  },
+  searchIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    color: '#f0f6fc',
+    fontSize: 14,
+    paddingVertical: 10,
+  },
+  searchClear: {
+    padding: 6,
+  },
+  searchClearText: {
+    color: '#8b949e',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  // Stock alerts
+  alertBanner: {
+    marginHorizontal: 16,
+    marginBottom: 10,
+    backgroundColor: '#2d1215',
+    borderColor: '#f8514940',
+    borderWidth: 1,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  alertBannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    gap: 8,
+  },
+  alertBannerIcon: {
+    fontSize: 16,
+  },
+  alertBannerText: {
+    color: '#f0f6fc',
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
+  },
+  alertBannerArrow: {
+    color: '#8b949e',
+    fontSize: 12,
+  },
+  alertList: {
+    maxHeight: 200,
+    marginHorizontal: 16,
+    marginBottom: 10,
+    backgroundColor: '#161b22',
+    borderColor: '#30363d',
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  alertItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#21262d',
+    gap: 10,
+  },
+  alertItemIcon: {
+    fontSize: 14,
+  },
+  alertItemName: {
+    color: '#f0f6fc',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  alertItemPath: {
+    color: '#8b949e',
+    fontSize: 11,
+  },
+  alertItemStock: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    minWidth: 30,
+    textAlign: 'center',
+  },
+  stockZero: {
+    color: '#f85149',
+  },
+  stockLow: {
+    color: '#d29922',
+  },
+
+  // Search results
+  searchResultsList: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  searchResultsHeader: {
+    color: '#8b949e',
+    fontSize: 13,
+    marginBottom: 12,
+    fontWeight: '500',
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#161b22',
+    borderColor: '#30363d',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
+    gap: 10,
+  },
+  searchResultIcon: {
+    fontSize: 22,
+  },
+  searchResultName: {
+    color: '#f0f6fc',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  searchResultPath: {
+    color: '#58a6ff',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  searchResultBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  searchBadgeItem: {
+    backgroundColor: '#1f3a5f',
+  },
+  searchBadgeCategory: {
+    backgroundColor: '#21262d',
+  },
+  searchResultBadgeText: {
+    color: '#f0f6fc',
+    fontSize: 10,
+    fontWeight: '600',
   },
 
   // Breadcrumb
@@ -423,7 +934,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // Category cards (root level - grid)
+  // Category cards
   categoryCard: {
     flex: 1,
     backgroundColor: '#161b22',
@@ -441,12 +952,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    aspectRatio: 1,
-    padding: 20,
+    minHeight: 140,
+    padding: 16,
     gap: 10,
   },
   categoryCardTablet: {
-    aspectRatio: undefined, // removed aspect ratio for non-root categories
+    aspectRatio: undefined,
   },
   categoryIcon: {
     fontSize: 18,
@@ -566,5 +1077,41 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     lineHeight: 20,
+  },
+
+  // Stock availability filters
+  stockFilterScroll: {
+    maxHeight: 44,
+    marginBottom: 10,
+  },
+  stockFilterContent: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  stockFilterChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#161b22',
+    borderWidth: 1,
+    borderColor: '#30363d',
+  },
+  stockFilterChipActive: {
+    backgroundColor: '#1f3a5f',
+    borderColor: '#1f6feb',
+  },
+  stockFilterText: {
+    color: '#8b949e',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  stockFilterTextActive: {
+    color: '#f0f6fc',
+  },
+  stockFilterBadgeNum: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    minWidth: 30,
+    textAlign: 'center',
   },
 });

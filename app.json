@@ -30,6 +30,13 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Andpatelec necesita acceso a tus fotos para agregar imágenes a los materiales.",
+          "cameraPermission": "Andpatelec necesita acceso a la cámara para tomar fotos de los materiales."
+        }
       ]
     ],
     "experiments": {
