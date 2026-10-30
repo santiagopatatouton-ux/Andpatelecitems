@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -16,27 +16,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
   doc,
-  getDoc,
   setDoc,
   addDoc,
   deleteDoc,
   collection,
   serverTimestamp,
   onSnapshot,
-  query,
-  where,
-  getDocs,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../firebaseConfig';
 import { useAuth } from '../context/auth-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-
-// Generate a Firestore-safe document ID from a path array
-function pathToDocId(pathArray: string[]): string {
-  return pathArray.join('__').replace(/[\/\\\\.]/g, '_');
-}
+import { pathToDocId } from '../utils/paths';
 
 const CART_STORAGE_KEY = 'andpatelec_cart';
 
@@ -61,8 +53,14 @@ interface CartItem {
 export default function ActionScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ path: string }>();
-  const itemPath: string[] = params.path ? JSON.parse(params.path) : [];
-  const { userProfile, isAdmin } = useAuth();
+  const itemPath: string[] = useMemo(() => {
+    try {
+      return params.path ? JSON.parse(params.path) : [];
+    } catch {
+      return [];
+    }
+  }, [params.path]);
+  const { userProfile } = useAuth();
 
   const [stock, setStock] = useState<number>(0);
   const [unitCost, setUnitCost] = useState<number | null>(null);
@@ -94,7 +92,6 @@ export default function ActionScreen() {
 
   const docId = pathToDocId(itemPath);
   const itemName = itemPath[itemPath.length - 1] || 'Ítem';
-  const categoryPath = itemPath.slice(0, -1).join(' › ');
 
   const currentUnit = UNIT_OPTIONS.find((u) => u.value === unitOfMeasure) || UNIT_OPTIONS[0];
 
@@ -153,7 +150,7 @@ export default function ActionScreen() {
     });
 
     return () => unsubscribe();
-  }, [userProfile?.uid, JSON.stringify(itemPath)]);
+  }, [userProfile?.uid, itemPath]);
 
   const handleToggleFavorite = async () => {
     if (!userProfile?.uid) return;

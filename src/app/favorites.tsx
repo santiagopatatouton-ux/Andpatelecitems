@@ -16,8 +16,6 @@ import {
   onSnapshot,
   doc,
   deleteDoc,
-  query,
-  orderBy,
 } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { useAuth } from '../context/auth-context';
@@ -31,35 +29,44 @@ interface Favorite {
 
 export default function FavoritesScreen() {
   const router = useRouter();
-  const { userProfile } = useAuth();
+  const { userProfile, loading: authLoading } = useAuth();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
 
   // Subscribe to user's favorites
   useEffect(() => {
     if (!userProfile?.uid) return;
 
     const favsRef = collection(db, 'users', userProfile.uid, 'favorites');
-    const q = query(favsRef, orderBy('addedAt', 'desc'));
 
     const unsubscribe = onSnapshot(
-      q,
+      favsRef,
       (snapshot) => {
         const items: Favorite[] = snapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...docSnap.data(),
         })) as Favorite[];
+
+        items.sort((a, b) => {
+          const aTime = a.addedAt?.toDate?.() || (a.addedAt?.seconds ? new Date(a.addedAt.seconds * 1000) : new Date(0));
+          const bTime = b.addedAt?.toDate?.() || (b.addedAt?.seconds ? new Date(b.addedAt.seconds * 1000) : new Date(0));
+          return bTime.getTime() - aTime.getTime();
+        });
+
         setFavorites(items);
-        setLoading(false);
+        setDataLoading(false);
       },
       (error) => {
         console.error('Error loading favorites:', error);
-        setLoading(false);
+        setFavorites([]);
+        setDataLoading(false);
       }
     );
 
     return () => unsubscribe();
   }, [userProfile?.uid]);
+
+  const loading = authLoading || (Boolean(userProfile?.uid) && dataLoading);
 
   const handleRemoveFavorite = async (fav: Favorite) => {
     if (!userProfile?.uid) return;

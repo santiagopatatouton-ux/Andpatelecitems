@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -210,7 +210,7 @@ export default function CartScreen() {
           <Text style={styles.emptyIcon}>🛒</Text>
           <Text style={styles.emptyTitle}>Pedido vacío</Text>
           <Text style={styles.emptyText}>
-            Navegá al catálogo y presioná "Agregar al pedido" en los ítems que necesitás.
+            Navegá al catálogo y presioná &quot;Agregar al pedido&quot; en los ítems que necesitás.
           </Text>
         </View>
       ) : (

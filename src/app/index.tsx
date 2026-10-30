@@ -6,10 +6,8 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  Alert,
   BackHandler,
   Dimensions,
-  Platform,
   TextInput,
   ScrollView,
 } from 'react-native';
@@ -21,6 +19,7 @@ import { db } from '../../firebaseConfig';
 import { seedCatalog } from '../utils/seed-catalog';
 import { CATEGORY_ICONS } from '../utils/catalog-data';
 import { useAuth } from '../context/auth-context';
+import { pathToDocId } from '../utils/paths';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const isTablet = SCREEN_WIDTH >= 600;
@@ -92,11 +91,6 @@ function flattenTree(node: any, currentPath: string[] = []): SearchEntry[] {
   return results;
 }
 
-// Generate a Firestore-safe document ID from a path array
-function pathToDocId(pathArray: string[]): string {
-  return pathArray.join('__').replace(/[\/\.]/g, '_');
-}
-
 interface StockAlert {
   path: string[];
   stock: number;
@@ -120,15 +114,7 @@ export default function HomeScreen() {
   const [stockFilter, setStockFilter] = useState<StockFilter>('all');
   const [allStockData, setAllStockData] = useState<StockData>({});
   const router = useRouter();
-  const { userProfile, isAdmin, signOut } = useAuth();
-
-  const handleLogout = async () => {
-    try {
-      await signOut();
-    } catch (e) {
-      console.error('Error signing out:', e);
-    }
-  };
+  const { userProfile } = useAuth();
 
   // Seed catalog on first load + subscribe to real-time updates
   useEffect(() => {
@@ -183,7 +169,7 @@ export default function HomeScreen() {
         snapshot.docs.forEach((d) => {
           const data = d.data();
           if (data.path) {
-            const key = data.path.join('__').replace(/[\/\.]/g, '_');
+            const key = pathToDocId(data.path);
             stockMap[key] = { stock: data.stock || 0, path: data.path };
           }
           if (data.stock !== undefined && data.stock <= 5) {
@@ -249,7 +235,7 @@ export default function HomeScreen() {
     if (stockFilter === 'all' || !catalogTree) return [];
     const allItems = flattenTree(catalogTree).filter((e) => e.type === 'item');
     return allItems.filter((entry) => {
-      const docId = entry.path.join('__').replace(/[\/\.]/g, '_');
+      const docId = pathToDocId(entry.path);
       const stockInfo = allStockData[docId];
       const currentStock = stockInfo?.stock ?? 0;
       switch (stockFilter) {
@@ -520,7 +506,7 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <Text style={styles.searchResultsHeader}>
-              {searchResults.length} resultado{searchResults.length !== 1 ? 's' : ''} para "{searchQuery}"
+              {searchResults.length} resultado{searchResults.length !== 1 ? 's' : ''} para &quot;{searchQuery}&quot;
             </Text>
           }
           ListEmptyComponent={
@@ -585,7 +571,7 @@ export default function HomeScreen() {
             </View>
           }
           renderItem={({ item: entry }) => {
-            const docId = entry.path.join('__').replace(/[\/\.]/g, '_');
+            const docId = pathToDocId(entry.path);
             const stockInfo = allStockData[docId];
             const currentStock = stockInfo?.stock ?? 0;
             return (

@@ -41,48 +41,28 @@ export default function BottomNav() {
 
   // Subscribe to pending orders count from Firestore
   useEffect(() => {
-    const ordersRef = collection(db, 'orders');
-    let q;
-
-    if (isAdmin) {
-      // Admin sees all pending orders
-      q = query(ordersRef, where('status', '==', 'pending'));
-    } else if (userProfile?.uid) {
-      // Employee sees their own pending orders
-      q = query(
-        ordersRef,
-        where('userId', '==', userProfile.uid),
-        where('status', '==', 'pending')
-      );
-    } else {
+    if (!isAdmin && !userProfile?.uid) {
       return;
     }
+
+    const ordersRef = collection(db, 'orders');
+    const q = query(ordersRef, where('status', '==', 'pending'));
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        setPendingOrdersCount(snapshot.docs.length);
+        if (isAdmin) {
+          setPendingOrdersCount(snapshot.docs.length);
+        } else {
+          const userPending = snapshot.docs.filter(
+            (d) => d.data().userId === userProfile?.uid
+          );
+          setPendingOrdersCount(userPending.length);
+        }
       },
       (error) => {
         console.error('Error loading pending orders count:', error);
-        // Fallback: try without composite index for non-admin
-        if (!isAdmin && userProfile?.uid) {
-          const fallbackQ = query(ordersRef, where('status', '==', 'pending'));
-          const fallbackUnsub = onSnapshot(
-            fallbackQ,
-            (snap) => {
-              // Filter client-side
-              const userPending = snap.docs.filter(
-                (d) => d.data().userId === userProfile.uid
-              );
-              setPendingOrdersCount(userPending.length);
-            },
-            () => {
-              setPendingOrdersCount(0);
-            }
-          );
-          return () => fallbackUnsub();
-        }
+        setPendingOrdersCount(0);
       }
     );
 

@@ -11,21 +11,20 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import {
   collection,
   query,
   onSnapshot,
-  addDoc,
   updateDoc,
   doc,
+  getDoc,
   serverTimestamp,
-  getDocs,
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { useAuth } from '../context/auth-context';
 import { logAuditEvent } from '../utils/audit-log';
+import { pathToDocId } from '../utils/paths';
 
 interface OrderItem {
   path: string[];
@@ -47,13 +46,7 @@ interface Order {
   rejectionReason?: string;
 }
 
-// Generate a Firestore-safe document ID from a path array
-function pathToDocId(pathArray: string[]): string {
-  return pathArray.join('__').replace(/[\/\\.]/g, '_');
-}
-
 export default function OrdersScreen() {
-  const router = useRouter();
   const { isAdmin, userProfile } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -123,13 +116,11 @@ export default function OrdersScreen() {
         for (const item of order.items) {
           const docId = pathToDocId(item.path);
           const stockRef = doc(db, 'stock', docId);
-          const stockSnap = await getDocs(
-            query(collection(db, 'stock'), where('__name__', '==', docId))
-          );
+          const stockSnap = await getDoc(stockRef);
 
           let currentStock = 0;
-          if (!stockSnap.empty) {
-            currentStock = stockSnap.docs[0].data().stock || 0;
+          if (stockSnap.exists()) {
+            currentStock = stockSnap.data()?.stock || 0;
           }
 
           const newStock = Math.max(0, currentStock - item.quantity);

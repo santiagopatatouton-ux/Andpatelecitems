@@ -26,14 +26,14 @@ import {
   orderBy,
   limit,
 } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword } from 'firebase/auth';
+import { initializeApp, getApps } from 'firebase/app';
+import { createUserWithEmailAndPassword, updatePassword, signOut as authSignOut, getAuth } from 'firebase/auth';
 import { db, auth } from '../../firebaseConfig';
 import { useAuth } from '../context/auth-context';
 import { logAuditEvent, getAuditActionLabel, AuditAction } from '../utils/audit-log';
-import { parseCatalogExcel, mergeTrees, countTreeItems, countTreeCategories } from '../utils/import-catalog';
+import { parseCatalogExcel, mergeTrees } from '../utils/import-catalog';
 import { CATALOG_TREE } from '../utils/catalog-data';
 import * as DocumentPicker from 'expo-document-picker';
-import * as XLSX from 'xlsx';
 
 type AdminTab = 'catalog' | 'users' | 'audit';
 
@@ -49,7 +49,7 @@ interface AuditLogEntry {
 
 export default function AdminScreen() {
   const router = useRouter();
-  const { isAdmin, userProfile, user } = useAuth();
+  const { isAdmin, userProfile, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('catalog');
 
   // Catalog state
@@ -86,12 +86,13 @@ export default function AdminScreen() {
   const [importing, setImporting] = useState(false);
   const [importPreview, setImportPreview] = useState<{ tree: Record<string, any>; items: number; categories: number; errors: string[] } | null>(null);
 
-  // Redirect if not admin
+  // Redirect if not admin (wait until auth finishes loading)
   useEffect(() => {
+    if (authLoading) return;
     if (!isAdmin) {
       router.replace('/');
     }
-  }, [isAdmin]);
+  }, [isAdmin, authLoading, router]);
 
   // Subscribe to catalog tree
   useEffect(() => {
@@ -547,7 +548,7 @@ export default function AdminScreen() {
         });
       } else {
         // Mobile: read as base64
-        const FileSystem = require('expo-file-system');
+        const FileSystem = await import('expo-file-system/legacy');
         const base64 = await FileSystem.readAsStringAsync(file.uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
@@ -656,15 +657,21 @@ export default function AdminScreen() {
     setCreatingUser(true);
 
     try {
-      // Save current admin credentials to re-sign in after creating the new user
-      const currentAdminEmail = user?.email;
+      // Create user with a secondary Firebase app so the current admin session is not interrupted
+      const secondaryAppName = 'SecondaryAuthApp';
+      const secondaryApp =
+        getApps().find((a) => a.name === secondaryAppName) ||
+        initializeApp(auth.app.options, secondaryAppName);
+      const secondaryAuth = getAuth(secondaryApp);
 
-      // Create the new user in Firebase Auth
       const credential = await createUserWithEmailAndPassword(
-        auth,
+        secondaryAuth,
         newUserEmail.trim(),
         newUserPassword.trim()
       );
+
+      // Immediately sign out from secondary auth
+      await authSignOut(secondaryAuth);
 
       // Save user profile in Firestore
       await setDoc(doc(db, 'users', credential.user.uid), {
@@ -690,9 +697,9 @@ export default function AdminScreen() {
       setNewUserRole('employee');
 
       if (Platform.OS === 'web') {
-        window.alert(`✅ Usuario "${newUserName.trim()}" creado. Nota: Puede que necesites volver a iniciar sesión.`);
+        window.alert(`✅ Usuario "${newUserName.trim()}" creado correctamente.`);
       } else {
-        Alert.alert('✅ Usuario creado', `"${newUserName.trim()}" fue creado correctamente.\n\nNota: Puede que necesites volver a iniciar sesión.`);
+        Alert.alert('✅ Usuario creado', `"${newUserName.trim()}" fue creado correctamente.`);
       }
     } catch (error: any) {
       console.error('Error creating user:', error);

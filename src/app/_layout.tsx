@@ -1,7 +1,7 @@
 import { Stack, useRouter, useSegments, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { AuthProvider, useAuth } from '../context/auth-context';
 import BottomNav from '../components/BottomNav';
@@ -13,14 +13,11 @@ function RootLayoutNav() {
   const segments = useSegments();
   const pathname = usePathname();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (loading) return;
 
-  useEffect(() => {
-    if (loading || !mounted) return;
+    SplashScreen.hideAsync().catch(() => {});
 
     const inLoginPage = segments[0] === 'login';
 
@@ -29,7 +26,7 @@ function RootLayoutNav() {
     } else if (user && inLoginPage) {
       router.replace('/');
     }
-  }, [user, loading, segments, mounted]);
+  }, [user, loading, segments, router]);
 
   const showBottomNav = user && pathname !== '/login';
 

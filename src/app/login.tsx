@@ -181,7 +181,7 @@ export default function LoginScreen() {
               onPress={async () => {
                 setSeeding(true);
                 try {
-                  await seedUsers();
+                  await seedUsers(true);
                   const msg = '✅ Usuarios iniciales verificados/creados correctamente en Firebase.';
                   if (Platform.OS === 'web') window.alert(msg);
                   else Alert.alert('Éxito', msg);

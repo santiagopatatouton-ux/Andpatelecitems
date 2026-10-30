@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { initializeApp, getApps } from 'firebase/app';
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   createUserWithEmailAndPassword,
+  getAuth,
   User,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -99,13 +101,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     displayName: string,
     role: 'admin' | 'employee'
   ) => {
-    // Note: Creating users from the client side with Firebase Auth will sign in
-    // as the new user. We need to handle this by saving current user and re-signing in.
     const currentUser = auth.currentUser;
-    const currentEmail = currentUser?.email;
 
     try {
-      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      const secondaryAppName = 'AuthContextUserApp';
+      const secondaryApp =
+        getApps().find((a) => a.name === secondaryAppName) ||
+        initializeApp(auth.app.options, secondaryAppName);
+      const secondaryAuth = getAuth(secondaryApp);
+
+      const credential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+      await firebaseSignOut(secondaryAuth);
       const newUid = credential.user.uid;
 
       // Save user profile in Firestore
@@ -116,10 +122,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         createdAt: serverTimestamp(),
         createdBy: currentUser?.uid || 'system',
       });
-
-      // Firebase Auth automatically signs in as the new user.
-      // We don't re-sign-in as the admin here because the caller
-      // (admin panel) will handle that flow.
     } catch (error) {
       throw error;
     }

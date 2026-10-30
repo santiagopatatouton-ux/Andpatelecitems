@@ -16,7 +16,6 @@ import { useRouter } from 'expo-router';
 import {
   collection,
   query,
-  orderBy,
   onSnapshot,
   where,
   getDocs,
@@ -49,9 +48,9 @@ interface UserOption {
 
 export default function HistoryScreen() {
   const router = useRouter();
-  const { isAdmin, userProfile } = useAuth();
+  const { isAdmin, userProfile, loading: authLoading } = useAuth();
   const [movements, setMovements] = useState<Movement[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [exportingAccounting, setExportingAccounting] = useState(false);
 
@@ -79,22 +78,18 @@ export default function HistoryScreen() {
     loadUsers();
   }, [isAdmin]);
 
+  const userUid = userProfile?.uid;
+
   // Load movements
   useEffect(() => {
-    const movementsRef = collection(db, 'movements');
-    let q;
+    if (authLoading) return;
+    if (!isAdmin && !userUid) return;
 
-    if (!isAdmin && userProfile?.uid) {
-      // Employees only see their own movements
-      q = query(
-        movementsRef,
-        where('userId', '==', userProfile.uid),
-        orderBy('timestamp', 'desc')
-      );
-    } else {
-      // Admins see all
-      q = query(movementsRef, orderBy('timestamp', 'desc'));
-    }
+    const movementsRef = collection(db, 'movements');
+    // Query without orderBy to avoid requiring a composite index in Firestore
+    const q = !isAdmin
+      ? query(movementsRef, where('userId', '==', userUid))
+      : query(movementsRef);
 
     const unsubscribe = onSnapshot(
       q,
@@ -103,17 +98,27 @@ export default function HistoryScreen() {
           id: docSnap.id,
           ...docSnap.data(),
         })) as Movement[];
+
+        // Client-side sort: newest first, handles pending serverTimestamp
+        items.sort((a, b) => {
+          const aTime = a.timestamp?.toDate?.() || (a.timestamp?.seconds ? new Date(a.timestamp.seconds * 1000) : new Date(0));
+          const bTime = b.timestamp?.toDate?.() || (b.timestamp?.seconds ? new Date(b.timestamp.seconds * 1000) : new Date(0));
+          return bTime.getTime() - aTime.getTime();
+        });
+
         setMovements(items);
-        setLoading(false);
+        setDataLoading(false);
       },
       (error) => {
         console.error('Error loading movements:', error);
-        setLoading(false);
+        setDataLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, [isAdmin, userProfile?.uid]);
+  }, [isAdmin, userUid, authLoading]);
+
+  const loading = authLoading || ((isAdmin || Boolean(userProfile?.uid)) && dataLoading);
 
   // Apply filters
   const filteredMovements = movements.filter((mov) => {
@@ -160,8 +165,8 @@ export default function HistoryScreen() {
 
       if (Platform.OS !== 'web' && result) {
         try {
-          const FileSystem = require('expo-file-system');
-          const Sharing = require('expo-sharing');
+          const FileSystem = await import('expo-file-system/legacy');
+          const Sharing = await import('expo-sharing');
           const filename = `historial_andpatelec_${new Date().toISOString().split('T')[0]}.xlsx`;
           const fileUri = FileSystem.documentDirectory + filename;
           await FileSystem.writeAsStringAsync(fileUri, result, {
@@ -208,8 +213,8 @@ export default function HistoryScreen() {
 
       if (Platform.OS !== 'web' && result) {
         try {
-          const FileSystem = require('expo-file-system');
-          const Sharing = require('expo-sharing');
+          const FileSystem = await import('expo-file-system/legacy');
+          const Sharing = await import('expo-sharing');
           const filename = `contable_andpatelec_${new Date().toISOString().split('T')[0]}.xlsx`;
           const fileUri = FileSystem.documentDirectory + filename;
           await FileSystem.writeAsStringAsync(fileUri, result, {
@@ -260,7 +265,6 @@ export default function HistoryScreen() {
   const renderMovement = ({ item }: { item: Movement }) => {
     const isEgreso = item.action === 'retirar';
     const isCompra = item.action === 'compra';
-    const isDevolucion = item.action === 'devolver';
     const itemName = item.path[item.path.length - 1] || 'Ítem';
     const category = item.path.slice(0, -1).join(' › ');
 

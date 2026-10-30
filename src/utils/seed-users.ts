@@ -1,4 +1,5 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signOut as authSignOut } from 'firebase/auth';
 import { doc, setDoc, getDocs, collection, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../firebaseConfig';
 
@@ -44,21 +45,29 @@ const INITIAL_USERS: SeedUser[] = [
 
 /**
  * Seeds the initial users into Firebase Auth and Firestore.
- * Only runs if no users exist in the Firestore 'users' collection.
- * 
- * IMPORTANT: This function creates users via Firebase Auth client SDK,
- * which means it will sign in as each new user during creation.
- * After seeding, you'll need to sign in as the desired user.
+ * Only runs if no users exist in the Firestore 'users' collection (unless force is true).
  */
-export async function seedUsers(): Promise<boolean> {
+export async function seedUsers(force: boolean = false): Promise<boolean> {
   try {
+    if (!force) {
+      const existingUsersSnap = await getDocs(collection(db, 'users'));
+      if (!existingUsersSnap.empty) {
+        return true;
+      }
+    }
+
     console.log('Seeding initial users...');
+    const secondaryAppName = 'SeedAuthApp';
+    const secondaryApp =
+      getApps().find((a) => a.name === secondaryAppName) ||
+      initializeApp(auth.app.options, secondaryAppName);
+    const secondaryAuth = getAuth(secondaryApp);
 
     for (const userData of INITIAL_USERS) {
       try {
-        // Create user in Firebase Auth
+        // Create user in Firebase Auth using secondary app to avoid session disruption
         const credential = await createUserWithEmailAndPassword(
-          auth,
+          secondaryAuth,
           userData.email,
           userData.password
         );
@@ -82,6 +91,7 @@ export async function seedUsers(): Promise<boolean> {
       }
     }
 
+    await authSignOut(secondaryAuth);
     console.log('✅ User seeding complete!');
     return true;
   } catch (error) {
