@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,14 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/auth-context';
-import { seedUsers, INITIAL_USERS } from '../utils/seed-users';
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
@@ -21,13 +19,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [seeding, setSeeding] = useState(false);
   const [error, setError] = useState('');
-
-  // Auto seed initial users on mount so Firebase Auth accounts are created
-  useEffect(() => {
-    seedUsers().catch((err) => console.log('Auto-seed check:', err));
-  }, []);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -44,7 +36,7 @@ export default function LoginScreen() {
       console.error('Login error:', err);
       let message = 'Error al iniciar sesión.';
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        message = 'Email o contraseña incorrectos. Si es la primera vez, presioná "Crear usuarios iniciales" abajo.';
+        message = 'Email o contraseña incorrectos.';
       } else if (err.code === 'auth/invalid-email') {
         message = 'El formato del email no es válido.';
       } else if (err.code === 'auth/too-many-requests') {
@@ -56,12 +48,6 @@ export default function LoginScreen() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSelectQuickUser = (u: typeof INITIAL_USERS[0]) => {
-    setEmail(u.email);
-    setPassword(u.password);
-    setError('');
   };
 
   return (
@@ -88,7 +74,7 @@ export default function LoginScreen() {
           <View style={styles.loginCard}>
             <Text style={styles.loginTitle}>Iniciar sesión</Text>
             <Text style={styles.loginSubtitle}>
-              Ingresá con tu cuenta o seleccioná un usuario abajo
+              Ingresá con tu cuenta
             </Text>
 
             {/* Error message */}
@@ -154,51 +140,6 @@ export default function LoginScreen() {
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.loginBtnText}>Ingresar</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {/* Quick Select Users */}
-          <View style={styles.quickUsersSection}>
-            <Text style={styles.quickUsersTitle}>⚡ Acceso rápido por usuario:</Text>
-            <View style={styles.quickUsersGrid}>
-              {INITIAL_USERS.map((u) => (
-                <TouchableOpacity
-                  key={u.email}
-                  style={styles.quickUserChip}
-                  onPress={() => handleSelectQuickUser(u)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.quickUserText}>
-                    {u.role === 'admin' ? '👑' : '👤'} {u.displayName}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <TouchableOpacity
-              style={styles.seedBtn}
-              onPress={async () => {
-                setSeeding(true);
-                try {
-                  await seedUsers(true);
-                  const msg = '✅ Usuarios iniciales verificados/creados correctamente en Firebase.';
-                  if (Platform.OS === 'web') window.alert(msg);
-                  else Alert.alert('Éxito', msg);
-                } catch (e: any) {
-                  const msg = 'Error al crear usuarios: ' + (e.message || e);
-                  if (Platform.OS === 'web') window.alert(msg);
-                  else Alert.alert('Error', msg);
-                } finally {
-                  setSeeding(false);
-                }
-              }}
-              disabled={seeding}
-            >
-              {seeding ? (
-                <ActivityIndicator color="#58a6ff" size="small" />
-              ) : (
-                <Text style={styles.seedBtnText}>🔄 Crear/Restablecer usuarios iniciales</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -345,50 +286,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-
-  // Quick select
-  quickUsersSection: {
-    marginTop: 24,
-    backgroundColor: '#161b22',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-  },
-  quickUsersTitle: {
-    color: '#8b949e',
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  quickUsersGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 14,
-  },
-  quickUserChip: {
-    backgroundColor: '#0d1117',
-    borderColor: '#1f6feb40',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  quickUserText: {
-    color: '#58a6ff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  seedBtn: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  seedBtnText: {
-    color: '#8b949e',
-    fontSize: 12,
-    textDecorationLine: 'underline',
   },
 
   // Footer
