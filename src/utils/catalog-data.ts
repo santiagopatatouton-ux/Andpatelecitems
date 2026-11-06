@@ -61,12 +61,3 @@ export const CATALOG_TREE: Record<string, any> = {
   'Varios': {},
 };
 
-// Icons for top-level categories
-export const CATEGORY_ICONS: Record<string, string> = {
-  'Canalizaciones': '🔧',
-  'Protecciones': '🛡️',
-  'Llaves de luz': '💡',
-  'Cables': '🔌',
-  'Iluminacion': '✨',
-  'Varios': '📦',
-};

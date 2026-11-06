@@ -1,276 +1,103 @@
-import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
-  Alert,
-  Platform,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import {
-  collection,
-  onSnapshot,
-  doc,
-  deleteDoc,
-} from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
-import { useAuth } from '../context/auth-context';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
-interface Favorite {
-  id: string;
-  path: string[];
-  name: string;
-  addedAt: any;
-}
+import { ItemRow } from '@/components/catalog';
+import { Screen } from '@/components/layout/screen';
+import { useFeedback } from '@/components/ui/feedback';
+import { Star, Trash2 } from '@/components/ui/icons';
+import {
+  AppText,
+  Card,
+  Divider,
+  EmptyState,
+  IconButton,
+  Loading,
+} from '@/components/ui/primitives';
+import { useCatalog } from '@/context/catalog-context';
+import { useFavorites, type Favorite } from '@/hooks/use-favorites';
+import { colors, spacing } from '@/theme/tokens';
+import { pathToDocId } from '@/utils/paths';
 
 export default function FavoritesScreen() {
   const router = useRouter();
-  const { userProfile, loading: authLoading } = useAuth();
-  const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [dataLoading, setDataLoading] = useState(true);
+  const { favorites, loading, removeFavorite } = useFavorites();
+  const { items } = useCatalog();
+  const { toast } = useFeedback();
 
-  // Subscribe to user's favorites
-  useEffect(() => {
-    if (!userProfile?.uid) return;
-
-    const favsRef = collection(db, 'users', userProfile.uid, 'favorites');
-
-    const unsubscribe = onSnapshot(
-      favsRef,
-      (snapshot) => {
-        const items: Favorite[] = snapshot.docs.map((docSnap) => ({
-          id: docSnap.id,
-          ...docSnap.data(),
-        })) as Favorite[];
-
-        items.sort((a, b) => {
-          const aTime = a.addedAt?.toDate?.() || (a.addedAt?.seconds ? new Date(a.addedAt.seconds * 1000) : new Date(0));
-          const bTime = b.addedAt?.toDate?.() || (b.addedAt?.seconds ? new Date(b.addedAt.seconds * 1000) : new Date(0));
-          return bTime.getTime() - aTime.getTime();
-        });
-
-        setFavorites(items);
-        setDataLoading(false);
-      },
-      (error) => {
-        console.error('Error loading favorites:', error);
-        setFavorites([]);
-        setDataLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [userProfile?.uid]);
-
-  const loading = authLoading || (Boolean(userProfile?.uid) && dataLoading);
-
-  const handleRemoveFavorite = async (fav: Favorite) => {
-    if (!userProfile?.uid) return;
-
-    const doRemove = async () => {
-      try {
-        await deleteDoc(doc(db, 'users', userProfile.uid, 'favorites', fav.id));
-      } catch (error) {
-        console.error('Error removing favorite:', error);
-        Alert.alert('Error', 'No se pudo quitar de favoritos.');
-      }
-    };
-
-    if (Platform.OS === 'web') {
-      const confirmed = window.confirm(`¿Quitar "${fav.name}" de favoritos?`);
-      if (confirmed) doRemove();
-    } else {
-      Alert.alert('Quitar favorito', `¿Quitar "${fav.name}" de favoritos?`, [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Quitar', style: 'destructive', onPress: doRemove },
-      ]);
+  const handleRemove = async (favorite: Favorite) => {
+    try {
+      await removeFavorite(favorite.id);
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+      toast('No se pudo quitar de favoritos.', 'danger');
     }
   };
 
-  const handleNavigateToItem = (fav: Favorite) => {
-    router.push({
-      pathname: '/action',
-      params: { path: JSON.stringify(fav.path) },
-    });
-  };
-
-  const renderFavorite = ({ item }: { item: Favorite }) => {
-    const category = item.path.slice(0, -1).join(' › ');
-
-    return (
-      <TouchableOpacity
-        style={styles.favCard}
-        onPress={() => handleNavigateToItem(item)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.favContent}>
-          <Text style={styles.favIcon}>⭐</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.favName}>{item.name}</Text>
-            <Text style={styles.favPath}>{category}</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.removeBtn}
-            onPress={() => handleRemoveFavorite(item)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.removeBtnText}>✕</Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerIcon}>⭐</Text>
-        <Text style={styles.headerTitle}>Favoritos</Text>
-        <Text style={styles.headerCount}>
-          {favorites.length} ítem{favorites.length !== 1 ? 's' : ''}
-        </Text>
-      </View>
-
-      {/* Content */}
+    <Screen
+      title="Favoritos"
+      subtitle={`${favorites.length} ${favorites.length === 1 ? 'ítem' : 'ítems'}`}
+    >
       {loading ? (
-        <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color="#d29922" />
-          <Text style={styles.loadingText}>Cargando favoritos...</Text>
-        </View>
+        <Loading label="Cargando favoritos" />
       ) : favorites.length === 0 ? (
-        <View style={styles.emptyBox}>
-          <Text style={styles.emptyIcon}>⭐</Text>
-          <Text style={styles.emptyTitle}>Sin favoritos</Text>
-          <Text style={styles.emptyText}>
-            Marcá ítems como favoritos desde la pantalla de cada artículo para acceder a ellos rápidamente.
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={favorites}
-          keyExtractor={(item) => item.id}
-          renderItem={renderFavorite}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
+        <EmptyState
+          icon={Star}
+          title="Sin favoritos"
+          message="Marcá con la estrella los ítems que usás seguido para tenerlos a mano."
         />
+      ) : (
+        <Card style={styles.list}>
+          {favorites.map((favorite, index) => {
+            const item = items.find((entry) => entry.id === pathToDocId(favorite.path));
+            return (
+              <View key={favorite.id}>
+                {index > 0 && <Divider />}
+                <View style={styles.entry}>
+                  <View style={styles.flex}>
+                    {item ? (
+                      <ItemRow
+                        name={item.name}
+                        detail={item.path.slice(0, -1).join(' › ')}
+                        stock={item.stock}
+                        level={item.level}
+                        unit={item.unitOfMeasure}
+                        onPress={() =>
+                          router.push({
+                            pathname: '/action',
+                            params: { path: JSON.stringify(item.path) },
+                          })
+                        }
+                      />
+                    ) : (
+                      <View style={styles.missing}>
+                        <AppText variant="bodyStrong">{favorite.name}</AppText>
+                        <AppText variant="small" color={colors.textMuted}>
+                          Ya no está en el catálogo
+                        </AppText>
+                      </View>
+                    )}
+                  </View>
+                  <IconButton
+                    icon={Trash2}
+                    label={`Quitar ${favorite.name} de favoritos`}
+                    color={colors.textMuted}
+                    onPress={() => handleRemove(favorite)}
+                  />
+                </View>
+              </View>
+            );
+          })}
+        </Card>
       )}
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0d1117',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#21262d',
-    gap: 10,
-  },
-  headerIcon: {
-    fontSize: 24,
-  },
-  headerTitle: {
-    color: '#f0f6fc',
-    fontSize: 20,
-    fontWeight: 'bold',
-    flex: 1,
-  },
-  headerCount: {
-    color: '#8b949e',
-    fontSize: 13,
-    fontWeight: '500',
-  },
-
-  // Favorite cards
-  favCard: {
-    backgroundColor: '#161b22',
-    borderColor: '#d2992233',
-    borderWidth: 1,
-    borderRadius: 12,
-    marginBottom: 8,
-    overflow: 'hidden',
-  },
-  favContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    gap: 12,
-  },
-  favIcon: {
-    fontSize: 22,
-  },
-  favName: {
-    color: '#f0f6fc',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  favPath: {
-    color: '#58a6ff',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  removeBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#21262d',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  removeBtnText: {
-    color: '#8b949e',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-
-  // List
-  listContent: {
-    padding: 16,
-    paddingBottom: 24,
-  },
-
-  // Loading / Empty
-  loadingBox: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#8b949e',
-    marginTop: 12,
-    fontSize: 14,
-  },
-  emptyBox: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 30,
-  },
-  emptyIcon: {
-    fontSize: 56,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    color: '#f0f6fc',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  emptyText: {
-    color: '#8b949e',
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
+  flex: { flex: 1, minWidth: 0 },
+  list: { padding: 0, overflow: 'hidden' },
+  entry: { flexDirection: 'row', alignItems: 'center', paddingRight: spacing.xs },
+  missing: { padding: spacing.lg },
 });

@@ -17,12 +17,12 @@ import {
   limit,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
   setLogLevel,
   updateDoc,
   where,
-  writeBatch,
 } from 'firebase/firestore';
 
 const ADMIN = 'admin-uid';
@@ -196,11 +196,13 @@ describe('empleado', () => {
     await assertFails(getDoc(doc(db(EMPLOYEE), 'movements', 'theirs')));
   });
 
-  it('crea pedidos propios y lee los pedidos como hoy', async () => {
+  it('crea y ve solo sus pedidos, con la consulta de la app', async () => {
     const orders = collection(db(EMPLOYEE), 'orders');
     await assertSucceeds(addDoc(orders, order(EMPLOYEE)));
-    await assertSucceeds(getDocs(query(orders)));
-    await assertSucceeds(getDocs(query(orders, where('status', '==', 'pending'))));
+    await assertSucceeds(getDocs(query(orders, where('userId', '==', EMPLOYEE))));
+    await assertFails(getDocs(query(orders)));
+    await assertFails(getDocs(query(orders, where('status', '==', 'pending'))));
+    await assertFails(getDocs(query(orders, where('userId', '==', COWORKER))));
     await assertFails(addDoc(orders, order(COWORKER)));
     await assertFails(addDoc(orders, order(EMPLOYEE, { status: 'approved' })));
     await assertFails(addDoc(orders, order(EMPLOYEE, { items: [] })));
@@ -266,17 +268,33 @@ describe('admin', () => {
     await assertFails(deleteDoc(self));
   });
 
-  it('aprueba un pedido con el batch de la app', async () => {
+  it('aprueba un pedido en una transacción, como la app', async () => {
     const admin = db(ADMIN);
-    const batch = writeBatch(admin);
-    batch.set(
-      doc(admin, 'stock', 'item'),
-      { path: PATH, stock: 9, lastUpdated: serverTimestamp() },
-      { merge: true }
+    await assertSucceeds(
+      runTransaction(admin, async (transaction) => {
+        await transaction.get(doc(admin, 'orders', 'pending'));
+        await transaction.get(doc(admin, 'stock', 'item'));
+        transaction.set(
+          doc(admin, 'stock', 'item'),
+          { path: PATH, stock: 9, lastUpdated: serverTimestamp() },
+          { merge: true }
+        );
+        transaction.set(doc(collection(admin, 'movements')), movement(EMPLOYEE, { quantity: 1 }));
+        transaction.update(doc(admin, 'orders', 'pending'), resolution(ADMIN, 'approved'));
+      })
     );
-    batch.set(doc(collection(admin, 'movements')), movement(EMPLOYEE, { quantity: 1 }));
-    batch.update(doc(admin, 'orders', 'pending'), resolution(ADMIN, 'approved'));
-    await assertSucceeds(batch.commit());
+  });
+
+  it('mueve el stock al renombrar un ítem', async () => {
+    const admin = db(ADMIN);
+    await assertSucceeds(
+      runTransaction(admin, async (transaction) => {
+        const snapshot = await transaction.get(doc(admin, 'stock', 'item'));
+        transaction.set(doc(admin, 'stock', 'renamed'), { ...snapshot.data(), path: ['Nuevo'] });
+        transaction.delete(snapshot.ref);
+      })
+    );
+    await assertFails(deleteDoc(doc(db(EMPLOYEE), 'stock', 'renamed')));
   });
 
   it('no aprueba dos veces el mismo pedido', async () => {

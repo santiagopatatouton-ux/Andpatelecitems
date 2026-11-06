@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../context/auth-context';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { BrandMark, useIsWide } from '@/components/layout/app-shell';
+import { CircleAlert, Eye, EyeOff, Mail, KeyRound } from '@/components/ui/icons';
+import { AppText, Banner, Button, Field, IconButton } from '@/components/ui/primitives';
+import { useAuth } from '@/context/auth-context';
+import { colors, spacing } from '@/theme/tokens';
+
+const AUTH_ERRORS: Record<string, string> = {
+  'auth/user-not-found': 'Email o contraseña incorrectos.',
+  'auth/wrong-password': 'Email o contraseña incorrectos.',
+  'auth/invalid-credential': 'Email o contraseña incorrectos.',
+  'auth/invalid-email': 'El formato del email no es válido.',
+  'auth/too-many-requests': 'Demasiados intentos. Esperá un momento y volvé a probar.',
+  'auth/network-request-failed': 'Sin conexión a internet.',
+};
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
+  const wide = useIsWide();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -22,277 +28,137 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
+    if (!email.trim() || !password) {
       setError('Completá email y contraseña.');
       return;
     }
 
     setError('');
     setLoading(true);
-
     try {
       await signIn(email.trim(), password);
-    } catch (err: any) {
-      console.error('Login error:', err);
-      let message = 'Error al iniciar sesión.';
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        message = 'Email o contraseña incorrectos.';
-      } else if (err.code === 'auth/invalid-email') {
-        message = 'El formato del email no es válido.';
-      } else if (err.code === 'auth/too-many-requests') {
-        message = 'Demasiados intentos. Esperá un momento.';
-      } else if (err.code === 'auth/network-request-failed') {
-        message = 'Sin conexión a internet.';
-      }
-      setError(message);
-    } finally {
+    } catch (failure) {
+      const code = (failure as { code?: string }).code ?? '';
+      setError(AUTH_ERRORS[code] ?? 'No se pudo iniciar sesión. Intentá de nuevo.');
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.page}>
+      {wide && (
+        <View style={styles.aside}>
+          <View style={styles.asideBrand}>
+            <BrandMark size={40} />
+            <AppText variant="title" color={colors.onInk}>
+              Andpatelec
+            </AppText>
+          </View>
+          <View style={styles.asideCopy}>
+            <AppText variant="display" color={colors.onInk}>
+              Control de stock
+            </AppText>
+            <AppText color={colors.onInkMuted}>
+              Materiales, pedidos y movimientos del depósito y las obras, en un solo lugar.
+            </AppText>
+          </View>
+        </View>
+      )}
+
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.flex}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scroll, { paddingTop: insets.top + spacing.xl }]}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
         >
-          {/* Logo / Brand */}
-          <View style={styles.brandSection}>
-            <View style={styles.logoCircle}>
-              <Text style={styles.logoIcon}>⚡</Text>
-            </View>
-            <Text style={styles.brandName}>Andpatelec</Text>
-            <Text style={styles.brandTagline}>Gestión de Materiales</Text>
-          </View>
-
-          {/* Login Card */}
-          <View style={styles.loginCard}>
-            <Text style={styles.loginTitle}>Iniciar sesión</Text>
-            <Text style={styles.loginSubtitle}>
-              Ingresá con tu cuenta
-            </Text>
-
-            {/* Error message */}
-            {error ? (
-              <View style={styles.errorBox}>
-                <Text style={styles.errorText}>⚠️ {error}</Text>
+          <View style={styles.form}>
+            {!wide && (
+              <View style={styles.mobileBrand}>
+                <BrandMark size={48} />
+                <AppText variant="title">Andpatelec</AppText>
               </View>
+            )}
+
+            <View>
+              <AppText variant={wide ? 'display' : 'title'} accessibilityRole="header">
+                Iniciar sesión
+              </AppText>
+              <AppText color={colors.textMuted}>Ingresá con tu cuenta de la empresa.</AppText>
+            </View>
+
+            {error ? (
+              <Banner tone="danger" icon={CircleAlert}>
+                {error}
+              </Banner>
             ) : null}
 
-            {/* Email */}
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
+            <Field
+              label="Email"
+              leading={Mail}
               value={email}
               onChangeText={(text) => {
                 setEmail(text);
                 setError('');
               }}
               placeholder="nombre@andpatelec.com"
-              placeholderTextColor="#484f58"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="email"
               editable={!loading}
             />
 
-            {/* Password */}
-            <Text style={styles.label}>Contraseña</Text>
-            <View style={styles.passwordRow}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  setError('');
-                }}
-                placeholder="••••••••"
-                placeholderTextColor="#484f58"
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                editable={!loading}
-                onSubmitEditing={handleLogin}
-              />
-              <TouchableOpacity
-                style={styles.eyeBtn}
-                onPress={() => setShowPassword(!showPassword)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.eyeIcon}>
-                  {showPassword ? '🙈' : '👁️'}
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <Field
+              label="Contraseña"
+              leading={KeyRound}
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setError('');
+              }}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoComplete="current-password"
+              editable={!loading}
+              onSubmitEditing={handleLogin}
+              trailing={
+                <IconButton
+                  icon={showPassword ? EyeOff : Eye}
+                  label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  color={colors.textMuted}
+                  onPress={() => setShowPassword(!showPassword)}
+                />
+              }
+            />
 
-            {/* Login Button */}
-            <TouchableOpacity
-              style={[styles.loginBtn, loading && styles.btnDisabled]}
-              onPress={handleLogin}
-              disabled={loading}
-              activeOpacity={0.7}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.loginBtnText}>Ingresar</Text>
-              )}
-            </TouchableOpacity>
+            <Button label="Ingresar" size="lg" onPress={handleLogin} loading={loading} fullWidth />
           </View>
-
-          {/* Footer */}
-          <Text style={styles.footer}>
-            Andpatelec · Control de Stock
-          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0d1117',
+  flex: { flex: 1 },
+  page: { flex: 1, flexDirection: 'row', backgroundColor: colors.background },
+  aside: {
+    width: '42%',
+    maxWidth: 520,
+    backgroundColor: colors.ink,
+    padding: spacing.xxxl,
+    justifyContent: 'space-between',
   },
-  scrollContent: {
+  asideBrand: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  asideCopy: { gap: spacing.sm, maxWidth: 380 },
+  scroll: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 24,
-  },
-
-  // Brand
-  brandSection: {
     alignItems: 'center',
-    marginBottom: 36,
+    padding: spacing.xl,
   },
-  logoCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: '#161b22',
-    borderWidth: 2,
-    borderColor: '#1f6feb',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#1f6feb',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 8,
-  },
-  logoIcon: {
-    fontSize: 42,
-  },
-  brandName: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#f0f6fc',
-    letterSpacing: 1,
-  },
-  brandTagline: {
-    fontSize: 14,
-    color: '#8b949e',
-    marginTop: 4,
-  },
-
-  // Login card
-  loginCard: {
-    backgroundColor: '#161b22',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 20,
-  },
-  loginTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#f0f6fc',
-    marginBottom: 4,
-  },
-  loginSubtitle: {
-    fontSize: 14,
-    color: '#8b949e',
-    marginBottom: 20,
-  },
-
-  // Error
-  errorBox: {
-    backgroundColor: '#2d1215',
-    borderColor: '#f85149',
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: '#f85149',
-    fontSize: 13,
-    fontWeight: '500',
-  },
-
-  // Form
-  label: {
-    color: '#c9d1d9',
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 6,
-    marginTop: 12,
-  },
-  input: {
-    backgroundColor: '#0d1117',
-    color: '#f0f6fc',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-  },
-  passwordRow: {
-    position: 'relative',
-  },
-  passwordInput: {
-    paddingRight: 48,
-  },
-  eyeBtn: {
-    position: 'absolute',
-    right: 12,
-    top: 10,
-    padding: 4,
-  },
-  eyeIcon: {
-    fontSize: 20,
-  },
-
-  // Button
-  loginBtn: {
-    backgroundColor: '#1f6feb',
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  btnDisabled: {
-    opacity: 0.6,
-  },
-  loginBtnText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-
-  // Footer
-  footer: {
-    color: '#484f58',
-    fontSize: 12,
-    textAlign: 'center',
-    marginTop: 24,
-  },
+  form: { width: '100%', maxWidth: 400, gap: spacing.lg },
+  mobileBrand: { alignItems: 'flex-start', gap: spacing.sm, marginBottom: spacing.sm },
 });

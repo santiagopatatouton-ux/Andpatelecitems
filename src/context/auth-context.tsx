@@ -1,52 +1,42 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { initializeApp, getApps } from 'firebase/app';
 import {
+  EmailAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
-  createUserWithEmailAndPassword,
-  getAuth,
-  User,
+  updatePassword,
+  type User,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '../../firebaseConfig';
+import { doc, onSnapshot } from 'firebase/firestore';
+import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+
+import { auth, db } from '@/lib/firebase';
+import type { Role } from '@/services/users';
 
 export interface UserProfile {
   uid: string;
   displayName: string;
   email: string;
-  role: 'admin' | 'employee';
-  createdAt?: any;
-  createdBy?: string;
+  role: Role;
 }
 
-interface AuthContextType {
+interface AuthContextValue {
   user: User | null;
   userProfile: UserProfile | null;
   isAdmin: boolean;
+  /** Mientras es true todavía no se sabe si hay sesión o perfil. */
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  createUser: (
-    email: string,
-    password: string,
-    displayName: string,
-    role: 'admin' | 'employee'
-  ) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  userProfile: null,
-  isAdmin: false,
-  loading: true,
-  signIn: async () => {},
-  signOut: async () => {},
-  createUser: async () => {},
-});
+const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth requiere AuthProvider');
+  return context;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -54,94 +44,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Listen to auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let stopProfile: (() => void) | undefined;
+
+    const stopAuth = onAuthStateChanged(auth, (firebaseUser) => {
+      stopProfile?.();
+      stopProfile = undefined;
       setUser(firebaseUser);
 
-      if (firebaseUser) {
-        // Load user profile from Firestore
-        try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-          if (userDoc.exists()) {
-            setUserProfile({
-              uid: firebaseUser.uid,
-              ...userDoc.data(),
-            } as UserProfile);
-          } else {
-            // User exists in Auth but not in Firestore — shouldn't happen normally
-            setUserProfile(null);
-          }
-        } catch (error) {
-          console.error('Error loading user profile:', error);
-          setUserProfile(null);
-        }
-      } else {
+      if (!firebaseUser) {
         setUserProfile(null);
+        setLoading(false);
+        return;
       }
 
-      setLoading(false);
+      // En vivo: si un admin cambia el rol o borra el perfil, aplica sin recargar.
+      setLoading(true);
+      stopProfile = onSnapshot(
+        doc(db, 'users', firebaseUser.uid),
+        (snapshot) => {
+          setUserProfile(
+            snapshot.exists()
+              ? ({ ...snapshot.data(), uid: firebaseUser.uid } as UserProfile)
+              : null
+          );
+          setLoading(false);
+        },
+        (error) => {
+          console.error('Error loading user profile:', error);
+          setUserProfile(null);
+          setLoading(false);
+        }
+      );
     });
 
-    return () => unsubscribe();
+    return () => {
+      stopProfile?.();
+      stopAuth();
+    };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
-  };
-
-  const signOut = async () => {
-    await firebaseSignOut(auth);
-    setUserProfile(null);
-  };
-
-  const createUser = async (
-    email: string,
-    password: string,
-    displayName: string,
-    role: 'admin' | 'employee'
-  ) => {
-    const currentUser = auth.currentUser;
-
-    try {
-      const secondaryAppName = 'AuthContextUserApp';
-      const secondaryApp =
-        getApps().find((a) => a.name === secondaryAppName) ||
-        initializeApp(auth.app.options, secondaryAppName);
-      const secondaryAuth = getAuth(secondaryApp);
-
-      const credential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
-      await firebaseSignOut(secondaryAuth);
-      const newUid = credential.user.uid;
-
-      // Save user profile in Firestore
-      await setDoc(doc(db, 'users', newUid), {
-        displayName,
-        email,
-        role,
-        createdAt: serverTimestamp(),
-        createdBy: currentUser?.uid || 'system',
-      });
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const isAdmin = userProfile?.role === 'admin';
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        userProfile,
-        isAdmin,
-        loading,
-        signIn,
-        signOut,
-        createUser,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      userProfile,
+      isAdmin: userProfile?.role === 'admin',
+      loading,
+      signIn: async (email, password) => {
+        await signInWithEmailAndPassword(auth, email, password);
+      },
+      signOut: () => firebaseSignOut(auth),
+      changePassword: async (currentPassword, newPassword) => {
+        const current = auth.currentUser;
+        if (!current?.email) throw new Error('No hay sesión activa.');
+        const credential = EmailAuthProvider.credential(current.email, currentPassword);
+        await reauthenticateWithCredential(current, credential);
+        await updatePassword(current, newPassword);
+      },
+    }),
+    [user, userProfile, loading]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

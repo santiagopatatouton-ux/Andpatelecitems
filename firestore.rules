@@ -7,8 +7,8 @@ rules_version = '2';
 // - Cuenta sin perfil en users/{uid}: nada. El registro de Firebase Auth está
 //   abierto porque Admin › Usuarios crea cuentas desde el cliente, así que estar
 //   logueado no alcanza: el perfil es lo que da acceso, y solo un admin lo crea.
-// - Empleado: lee catálogo, stock y pedidos; mueve stock; crea pedidos y
-//   movimientos propios; maneja sus favoritos.
+// - Empleado: lee catálogo y stock; mueve stock; crea y ve sus pedidos y
+//   movimientos; maneja sus favoritos.
 // - Admin: además edita catálogo y usuarios, resuelve pedidos y ve auditoría.
 //
 // Los movimientos y la auditoría son de solo agregado: no se editan ni se borran.
@@ -76,16 +76,19 @@ service cloud.firestore {
       }
     }
 
-    // Stock: cualquier miembro lo mueve; nadie borra el documento.
+    // Stock: cualquier miembro lo mueve. Solo un admin borra documentos, al renombrar
+    // o eliminar ítems del catálogo.
     match /stock/{stockId} {
       allow read: if isMember();
       allow create, update: if isMember() && isValidStock();
+      allow delete: if isAdmin();
     }
 
-    // Pedidos: un miembro crea los propios; un admin resuelve los pendientes.
+    // Pedidos: un miembro crea y ve los propios; un admin ve todos y resuelve los pendientes.
     // Exigir status 'pending' impide aprobar dos veces el mismo pedido.
     match /orders/{orderId} {
-      allow read: if isMember();
+      allow read: if isAdmin()
+        || (isMember() && resource.data.userId == request.auth.uid);
       allow create: if isMember()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == 'pending'

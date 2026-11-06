@@ -1,8 +1,10 @@
 import { Platform } from 'react-native';
 import * as XLSX from 'xlsx';
 
-interface MovementRow {
-  timestamp: any;
+import { formatDateTime } from './format';
+
+export interface MovementRow {
+  timestamp: unknown;
   userName: string;
   path: string[];
   action: string;
@@ -15,115 +17,52 @@ interface MovementRow {
   supplier?: string | null;
 }
 
-/**
- * Formats a Firestore timestamp or Date to a readable string
- */
-function formatDate(timestamp: any): string {
-  if (!timestamp) return 'Sin fecha';
+export const ACTION_LABELS: Record<string, string> = {
+  retirar: 'Egreso',
+  devolver: 'Devolución',
+  compra: 'Compra',
+};
 
-  let date: Date;
-  if (timestamp.toDate) {
-    date = timestamp.toDate();
-  } else if (timestamp instanceof Date) {
-    date = timestamp;
-  } else if (typeof timestamp === 'number') {
-    date = new Date(timestamp);
-  } else {
-    return 'Sin fecha';
-  }
+type Cell = string | number | null;
 
-  return date.toLocaleString('es-AR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+const MOVEMENT_COLUMNS: { header: string; width: number; value: (row: MovementRow) => Cell }[] = [
+  { header: 'Fecha', width: 18, value: (row) => formatDateTime(row.timestamp as never) },
+  { header: 'Usuario', width: 20, value: (row) => row.userName || 'Desconocido' },
+  { header: 'Categoría', width: 32, value: (row) => row.path.slice(0, -1).join(' > ') },
+  { header: 'Ítem', width: 22, value: (row) => row.path[row.path.length - 1] ?? '' },
+  { header: 'Tipo', width: 12, value: (row) => ACTION_LABELS[row.action] ?? row.action },
+  { header: 'Cantidad', width: 10, value: (row) => row.quantity },
+  { header: 'Stock antes', width: 12, value: (row) => row.stockBefore },
+  { header: 'Stock después', width: 14, value: (row) => row.stockAfter },
+  { header: 'Precio unit. ($)', width: 16, value: (row) => row.unitCost ?? null },
+  { header: 'Total ($)', width: 14, value: (row) => row.totalCost ?? null },
+  { header: 'Proveedor', width: 22, value: (row) => row.supplier ?? '' },
+  { header: 'Notas', width: 32, value: (row) => row.notes ?? '' },
+];
+
+export function movementsSheet(rows: MovementRow[]) {
+  const sheet = XLSX.utils.aoa_to_sheet([
+    MOVEMENT_COLUMNS.map((column) => column.header),
+    ...rows.map((row) => MOVEMENT_COLUMNS.map((column) => column.value(row))),
+  ]);
+  sheet['!cols'] = MOVEMENT_COLUMNS.map((column) => ({ wch: column.width }));
+  return sheet;
 }
 
-/**
- * Returns a human-readable label for a movement action type
- */
-function getActionLabel(action: string): string {
-  switch (action) {
-    case 'retirar': return 'Egreso';
-    case 'devolver': return 'Devolución';
-    case 'compra': return 'Compra';
-    default: return action;
-  }
-}
-
-/**
- * Exports an array of movements to an Excel file.
- * On web: triggers a download.
- * On mobile: returns the base64 data for sharing.
- */
-export function exportMovementsToExcel(
-  movements: MovementRow[],
-  filename?: string
-): string | void {
-  const defaultFilename = `historial_andpatelec_${new Date().toISOString().split('T')[0]}.xlsx`;
-  const finalFilename = filename || defaultFilename;
-
-  // Build worksheet data
-  const wsData = [
-    ['Fecha', 'Usuario', 'Categoría', 'Ítem', 'Acción', 'Cantidad', 'Stock Antes', 'Stock Después', 'Precio Unit. ($)', 'Total ($)', 'Proveedor', 'Notas'],
-  ];
-
-  for (const mov of movements) {
-    const category = mov.path.slice(0, -1).join(' > ');
-    const item = mov.path[mov.path.length - 1] || '';
-    const actionLabel = getActionLabel(mov.action);
-
-    wsData.push([
-      formatDate(mov.timestamp),
-      mov.userName || 'Desconocido',
-      category,
-      item,
-      actionLabel,
-      String(mov.quantity),
-      String(mov.stockBefore),
-      String(mov.stockAfter),
-      mov.unitCost != null ? String(mov.unitCost) : '',
-      mov.totalCost != null ? String(mov.totalCost) : '',
-      mov.supplier || '',
-      mov.notes || '',
-    ]);
-  }
-
-  // Create workbook and worksheet
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Set column widths for readability
-  ws['!cols'] = [
-    { wch: 22 },  // Fecha
-    { wch: 20 },  // Usuario
-    { wch: 30 },  // Categoría
-    { wch: 20 },  // Ítem
-    { wch: 12 },  // Acción
-    { wch: 10 },  // Cantidad
-    { wch: 12 },  // Stock Antes
-    { wch: 14 },  // Stock Después
-    { wch: 16 },  // Precio Unit.
-    { wch: 14 },  // Total
-    { wch: 20 },  // Proveedor
-    { wch: 30 },  // Notas
-  ];
-
-  XLSX.utils.book_append_sheet(wb, ws, 'Historial');
-
+/** En web descarga el archivo; en el teléfono devuelve el base64 para compartirlo. */
+export function deliverWorkbook(workbook: XLSX.WorkBook, filename: string): string | undefined {
   if (Platform.OS === 'web') {
-    // Web: trigger download
-    XLSX.writeFile(wb, finalFilename);
-  } else {
-    // Mobile: return base64 string for expo-file-system + expo-sharing
-    const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
-    return wbout;
+    XLSX.writeFile(workbook, filename);
+    return undefined;
   }
+  return XLSX.write(workbook, { type: 'base64', bookType: 'xlsx' });
 }
 
-export { formatDate, getActionLabel };
-export type { MovementRow };
+export const exportFilename = (prefix: string) =>
+  `${prefix}_andpatelec_${new Date().toISOString().split('T')[0]}.xlsx`;
 
+export function exportMovementsToExcel(rows: MovementRow[], filename: string) {
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, movementsSheet(rows), 'Historial');
+  return deliverWorkbook(workbook, filename);
+}
