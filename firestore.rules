@@ -1,0 +1,127 @@
+rules_version = '2';
+
+// Reglas de Firestore de Andpatelec.
+//
+// Modelo de acceso:
+// - Sin login: nada.
+// - Cuenta sin perfil en users/{uid}: nada. El registro de Firebase Auth está
+//   abierto porque Admin › Usuarios crea cuentas desde el cliente, así que estar
+//   logueado no alcanza: el perfil es lo que da acceso, y solo un admin lo crea.
+// - Empleado: lee catálogo, stock y pedidos; mueve stock; crea pedidos y
+//   movimientos propios; maneja sus favoritos.
+// - Admin: además edita catálogo y usuarios, resuelve pedidos y ve auditoría.
+//
+// Los movimientos y la auditoría son de solo agregado: no se editan ni se borran.
+// El primer admin de una base vacía se crea desde Firebase Console.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function profilePath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function isMember() {
+      return isSignedIn() && exists(profilePath());
+    }
+
+    function isAdmin() {
+      return isMember() && get(profilePath()).data.role == 'admin';
+    }
+
+    function hasValidRole() {
+      return request.resource.data.role in ['admin', 'employee'];
+    }
+
+    function isValidStock() {
+      let data = request.resource.data;
+      return data.path is list
+        && data.path.size() > 0
+        && (!('stock' in data) || (data.stock is number && data.stock >= 0));
+    }
+
+    function isValidMovement() {
+      let data = request.resource.data;
+      return data.action in ['retirar', 'devolver', 'compra']
+        && data.quantity is number
+        && data.quantity > 0
+        && data.path is list
+        && data.timestamp == request.time;
+    }
+
+    // Catálogo: lo ven todos los miembros, lo edita un admin.
+    match /catalog/{document=**} {
+      allow read: if isMember();
+      allow write: if isAdmin();
+    }
+
+    // Perfiles: cada uno ve el suyo; un admin ve y administra todos.
+    // Un admin no puede cambiar su propio rol ni borrarse.
+    match /users/{userId} {
+      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      allow create: if isAdmin() && hasValidRole();
+      allow update: if isAdmin()
+        && hasValidRole()
+        && (request.auth.uid != userId
+            || request.resource.data.role == resource.data.role);
+      allow delete: if isAdmin() && request.auth.uid != userId;
+
+      // Favoritos: solo su dueño.
+      match /favorites/{favoriteId} {
+        allow read, write: if isMember() && request.auth.uid == userId;
+      }
+    }
+
+    // Stock: cualquier miembro lo mueve; nadie borra el documento.
+    match /stock/{stockId} {
+      allow read: if isMember();
+      allow create, update: if isMember() && isValidStock();
+    }
+
+    // Pedidos: un miembro crea los propios; un admin resuelve los pendientes.
+    // Exigir status 'pending' impide aprobar dos veces el mismo pedido.
+    match /orders/{orderId} {
+      allow read: if isMember();
+      allow create: if isMember()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.items is list
+        && request.resource.data.items.size() > 0
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && resource.data.status == 'pending'
+        && request.resource.data.status in ['approved', 'rejected']
+        && request.resource.data.resolvedBy == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'resolvedBy', 'resolvedByName', 'resolvedAt', 'rejectionReason'
+        ]);
+    }
+
+    // Movimientos: cada miembro registra y ve los suyos. Un admin ve todos y
+    // registra a nombre del empleado al aprobar un pedido.
+    match /movements/{movementId} {
+      allow read: if isAdmin()
+        || (isMember() && resource.data.userId == request.auth.uid);
+      allow create: if isValidMovement()
+        && (isAdmin()
+            || (isMember() && request.resource.data.userId == request.auth.uid));
+    }
+
+    // Auditoría: solo admins, y cada uno firma lo suyo.
+    match /audit_log/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource.data.adminId == request.auth.uid
+        && request.resource.data.timestamp == request.time;
+    }
+
+    // La app no usa esta colección. Queda solo para admins por si tiene datos.
+    match /obras/{obraId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
