@@ -1,0 +1,396 @@
+[
+ {
+  "path": [
+   "Cambre S.XXII",
+   "Tapas",
+   "3 modulos"
+  ],
+  "id": "Cambre S_XXII__Tapas__3 modulos",
+  "stock": 45,
+  "source": "llaves_de_luz_tapas_3_modulos",
+  "rule": "renombre auditado Llaves de luz > Cambre S.XXII",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cambre S.XXII",
+   "Tapas",
+   "2 modulos"
+  ],
+  "id": "Cambre S_XXII__Tapas__2 modulos",
+  "stock": 135,
+  "source": "llaves_de_luz_tapas_2_modulos",
+  "rule": "renombre auditado Llaves de luz > Cambre S.XXII",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cambre S.XXII",
+   "Tapas",
+   "1 modulo"
+  ],
+  "id": "Cambre S_XXII__Tapas__1 modulo",
+  "stock": 135,
+  "source": "llaves_de_luz_tapas_1_modulo",
+  "rule": "renombre auditado Llaves de luz > Cambre S.XXII",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cambre S.XXII",
+   "Tapas",
+   "Tapa ciega"
+  ],
+  "id": "Cambre S_XXII__Tapas__Tapa ciega",
+  "stock": 25,
+  "source": "llaves_de_luz_tapas_tapa_ciega",
+  "rule": "renombre auditado Llaves de luz > Cambre S.XXII",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cambre S.XXII",
+   "Tapas",
+   "Tapa mignon"
+  ],
+  "id": "Cambre S_XXII__Tapas__Tapa mignon",
+  "stock": 76,
+  "source": "llaves_de_luz_tapas_tapa_mignon",
+  "rule": "renombre auditado Llaves de luz > Cambre S.XXII",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cambre S.XXII",
+   "Pulsadores",
+   "Combinado"
+  ],
+  "id": "Cambre S_XXII__Pulsadores__Combinado",
+  "stock": 120,
+  "source": "llaves_de_luz_pulsadores_combinado",
+  "rule": "renombre auditado Llaves de luz > Cambre S.XXII",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cambre S.XXII",
+   "Pulsadores",
+   "Pulsador"
+  ],
+  "id": "Cambre S_XXII__Pulsadores__Pulsador",
+  "stock": 120,
+  "source": "llaves_de_luz_pulsadores_pulsador",
+  "rule": "renombre auditado Llaves de luz > Cambre S.XXII",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "1,5mm",
+   "Rojo"
+  ],
+  "id": "Cables__Unipolar__1,5mm__Rojo",
+  "stock": 18,
+  "source": "cables_unipolar_1_5mm_rojo",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "1,5mm",
+   "Celeste"
+  ],
+  "id": "Cables__Unipolar__1,5mm__Celeste",
+  "stock": 45,
+  "source": "cables_unipolar_1_5mm_celeste",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "1,5mm",
+   "Marron"
+  ],
+  "id": "Cables__Unipolar__1,5mm__Marron",
+  "stock": 32,
+  "source": "cables_unipolar_1_5mm_marron",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "1,5mm",
+   "Negro"
+  ],
+  "id": "Cables__Unipolar__1,5mm__Negro",
+  "stock": 17,
+  "source": "cables_unipolar_1_5mm_negro",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "1,5mm",
+   "Blanco"
+  ],
+  "id": "Cables__Unipolar__1,5mm__Blanco",
+  "stock": 1,
+  "source": "cables_unipolar_1_5mm_blanco",
+  "rule": "ruta exacta",
+  "counted": "2026-08-10"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "6mm",
+   "Celeste"
+  ],
+  "id": "Cables__Unipolar__6mm__Celeste",
+  "stock": 1,
+  "source": "cables_unipolar_6mm_celeste",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "6mm",
+   "Marron"
+  ],
+  "id": "Cables__Unipolar__6mm__Marron",
+  "stock": 7,
+  "source": "cables_unipolar_6mm_marron",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "6mm",
+   "Negro"
+  ],
+  "id": "Cables__Unipolar__6mm__Negro",
+  "stock": 2,
+  "source": "cables_unipolar_6mm_negro",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "4mm",
+   "Rojo"
+  ],
+  "id": "Cables__Unipolar__4mm__Rojo",
+  "stock": 8,
+  "source": "cables_unipolar_4mm_rojo",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "4mm",
+   "Celeste"
+  ],
+  "id": "Cables__Unipolar__4mm__Celeste",
+  "stock": 10,
+  "source": "cables_unipolar_4mm_celeste",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "4mm",
+   "Marron"
+  ],
+  "id": "Cables__Unipolar__4mm__Marron",
+  "stock": 6,
+  "source": "cables_unipolar_4mm_marron",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "4mm",
+   "Negro"
+  ],
+  "id": "Cables__Unipolar__4mm__Negro",
+  "stock": 6,
+  "source": "cables_unipolar_4mm_negro",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "4mm",
+   "Tierra"
+  ],
+  "id": "Cables__Unipolar__4mm__Tierra",
+  "stock": 4,
+  "source": "cables_unipolar_4mm_tierra",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "10mm",
+   "Rojo"
+  ],
+  "id": "Cables__Unipolar__10mm__Rojo",
+  "stock": 2,
+  "source": "cables_unipolar_10mm_rojo",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "10mm",
+   "Celeste"
+  ],
+  "id": "Cables__Unipolar__10mm__Celeste",
+  "stock": 1,
+  "source": "cables_unipolar_10mm_celeste",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "10mm",
+   "Marron"
+  ],
+  "id": "Cables__Unipolar__10mm__Marron",
+  "stock": 2,
+  "source": "cables_unipolar_10mm_marron",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "10mm",
+   "Negro"
+  ],
+  "id": "Cables__Unipolar__10mm__Negro",
+  "stock": 4,
+  "source": "cables_unipolar_10mm_negro",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "2,5mm",
+   "Rojo"
+  ],
+  "id": "Cables__Unipolar__2,5mm__Rojo",
+  "stock": 26,
+  "source": "cables_unipolar_2_5mm_rojo",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "2,5mm",
+   "Celeste"
+  ],
+  "id": "Cables__Unipolar__2,5mm__Celeste",
+  "stock": 45,
+  "source": "cables_unipolar_2_5mm_celeste",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "2,5mm",
+   "Marron"
+  ],
+  "id": "Cables__Unipolar__2,5mm__Marron",
+  "stock": 60,
+  "source": "cables_unipolar_2_5mm_marron",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "2,5mm",
+   "Negro"
+  ],
+  "id": "Cables__Unipolar__2,5mm__Negro",
+  "stock": 57,
+  "source": "cables_unipolar_2_5mm_negro",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Cables",
+   "Unipolar",
+   "2,5mm",
+   "Tierra"
+  ],
+  "id": "Cables__Unipolar__2,5mm__Tierra",
+  "stock": 45,
+  "source": "cables_unipolar_2_5mm_tierra",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Canalizaciones",
+   "Caño corrugado",
+   "1\""
+  ],
+  "id": "Canalizaciones__Caño corrugado__1\"",
+  "stock": 15,
+  "source": "caño corrugado 1'",
+  "rule": "mismo nombre",
+  "counted": "2026-07-23"
+ },
+ {
+  "path": [
+   "Iluminacion",
+   "Plafones",
+   "17"
+  ],
+  "id": "Iluminacion__Plafones__17",
+  "stock": 23,
+  "source": "iluminacion_plafones_17",
+  "rule": "ruta exacta",
+  "counted": "2026-07-23"
+ }
+]

@@ -1,0 +1,158 @@
+﻿Estado;Ítem;Stock actual;Valor viejo;Motivo o regla;Fecha del conteo;Documento origen
+Migrado;Cambre S.XXII / Tapas / 3 modulos;45;45;renombre auditado Llaves de luz > Cambre S.XXII;2026-07-23;llaves_de_luz_tapas_3_modulos
+Migrado;Cambre S.XXII / Tapas / 2 modulos;135;135;renombre auditado Llaves de luz > Cambre S.XXII;2026-07-23;llaves_de_luz_tapas_2_modulos
+Migrado;Cambre S.XXII / Tapas / 1 modulo;135;135;renombre auditado Llaves de luz > Cambre S.XXII;2026-07-23;llaves_de_luz_tapas_1_modulo
+Migrado;Cambre S.XXII / Tapas / Tapa ciega;25;25;renombre auditado Llaves de luz > Cambre S.XXII;2026-07-23;llaves_de_luz_tapas_tapa_ciega
+Migrado;Cambre S.XXII / Tapas / Tapa mignon;76;76;renombre auditado Llaves de luz > Cambre S.XXII;2026-07-23;llaves_de_luz_tapas_tapa_mignon
+Migrado;Cambre S.XXII / Pulsadores / Combinado;120;120;renombre auditado Llaves de luz > Cambre S.XXII;2026-07-23;llaves_de_luz_pulsadores_combinado
+Migrado;Cambre S.XXII / Pulsadores / Pulsador;120;120;renombre auditado Llaves de luz > Cambre S.XXII;2026-07-23;llaves_de_luz_pulsadores_pulsador
+Migrado;Cables / Unipolar / 1,5mm / Rojo;18;18;ruta exacta;2026-07-23;cables_unipolar_1_5mm_rojo
+Migrado;Cables / Unipolar / 1,5mm / Celeste;45;45;ruta exacta;2026-07-23;cables_unipolar_1_5mm_celeste
+Migrado;Cables / Unipolar / 1,5mm / Marron;32;32;ruta exacta;2026-07-23;cables_unipolar_1_5mm_marron
+Migrado;Cables / Unipolar / 1,5mm / Negro;17;17;ruta exacta;2026-07-23;cables_unipolar_1_5mm_negro
+Migrado;Cables / Unipolar / 1,5mm / Blanco;1;1;ruta exacta;2026-08-10;cables_unipolar_1_5mm_blanco
+Migrado;Cables / Unipolar / 6mm / Celeste;1;1;ruta exacta;2026-07-23;cables_unipolar_6mm_celeste
+Migrado;Cables / Unipolar / 6mm / Marron;7;7;ruta exacta;2026-07-23;cables_unipolar_6mm_marron
+Migrado;Cables / Unipolar / 6mm / Negro;2;2;ruta exacta;2026-07-23;cables_unipolar_6mm_negro
+Migrado;Cables / Unipolar / 4mm / Rojo;8;8;ruta exacta;2026-07-23;cables_unipolar_4mm_rojo
+Migrado;Cables / Unipolar / 4mm / Celeste;10;10;ruta exacta;2026-07-23;cables_unipolar_4mm_celeste
+Migrado;Cables / Unipolar / 4mm / Marron;6;6;ruta exacta;2026-07-23;cables_unipolar_4mm_marron
+Migrado;Cables / Unipolar / 4mm / Negro;6;6;ruta exacta;2026-07-23;cables_unipolar_4mm_negro
+Migrado;Cables / Unipolar / 4mm / Tierra;4;4;ruta exacta;2026-07-23;cables_unipolar_4mm_tierra
+Migrado;Cables / Unipolar / 10mm / Rojo;2;2;ruta exacta;2026-07-23;cables_unipolar_10mm_rojo
+Migrado;Cables / Unipolar / 10mm / Celeste;1;1;ruta exacta;2026-07-23;cables_unipolar_10mm_celeste
+Migrado;Cables / Unipolar / 10mm / Marron;2;2;ruta exacta;2026-07-23;cables_unipolar_10mm_marron
+Migrado;Cables / Unipolar / 10mm / Negro;4;4;ruta exacta;2026-07-23;cables_unipolar_10mm_negro
+Migrado;Cables / Unipolar / 2,5mm / Rojo;26;26;ruta exacta;2026-07-23;cables_unipolar_2_5mm_rojo
+Migrado;Cables / Unipolar / 2,5mm / Celeste;45;45;ruta exacta;2026-07-23;cables_unipolar_2_5mm_celeste
+Migrado;Cables / Unipolar / 2,5mm / Marron;60;60;ruta exacta;2026-07-23;cables_unipolar_2_5mm_marron
+Migrado;Cables / Unipolar / 2,5mm / Negro;57;57;ruta exacta;2026-07-23;cables_unipolar_2_5mm_negro
+Migrado;Cables / Unipolar / 2,5mm / Tierra;45;45;ruta exacta;2026-07-23;cables_unipolar_2_5mm_tierra
+Migrado;"Canalizaciones / Caño corrugado / 1""";15;15;mismo nombre;2026-07-23;caño corrugado 1'
+Migrado;Iluminacion / Plafones / 17;23;23;ruta exacta;2026-07-23;iluminacion_plafones_17
+Sin migrar;Cambre S.XXII / Tapas / 4 modulos;1;495;conflicto con registro de septiembre (1);;
+Sin migrar;Cambre S.XXII / Tapas / Tapa capsulada;0;;sin coincidencia;;
+Sin migrar;Cambre S.XXII / Pulsadores / De punto;0;10;valor por defecto 10;;
+Sin migrar;Cambre S.XXII / Toma / Doble;0;;sin coincidencia;;
+Sin migrar;Cambre S.XXII / Toma / Simple 10A;0;;sin coincidencia;;
+Sin migrar;Cambre S.XXII / Toma / Simple 20A;0;;sin coincidencia;;
+Sin migrar;Cambre S.XXII / Bastidores / Doble;0;;sin coincidencia;;
+Sin migrar;Cambre S.XXII / Bastidores / Mignon;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Embutir / 4mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Embutir / 8mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Embutir / 12mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Embutir / 16mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Embutir / 18mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Embutir / 22mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Embutir / 24mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Embutir / 32mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Embutir / 48mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Exterior / 4mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Exterior / 8mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Exterior / 12mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Exterior / 16mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Exterior / 18mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Exterior / 22mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Exterior / 24mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Exterior / 32mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Plásticas / Tableros / Exterior / 48mod.;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 100x100x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 150x150x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 150x200x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 150x250x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 200x200x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 200x300x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 200x400x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 250x250x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 300x300x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 400x400x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 500x500x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Cajas / 600x600x100mm;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Tableros / GEE 3545-12 2f-36mod;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Tableros / GEE 5045-12 3f-54mod;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Tableros / GEE 3530-12 2f-20mod;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Tableros / GEE 7560-16 P;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Tableros / GE 4030-16;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Tableros / GE 4545-21;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Tableros / GE 5040-16;0;;sin coincidencia;;
+Sin migrar;Cajas y gabinetes / Metálicas / Tableros / GECLK 6060-20;1;;ya tiene stock actual;;
+Sin migrar;Cables / Unipolar / 1mm / 10mm / Rojo;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 10mm / Celeste;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 10mm / Marron;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 10mm / Negro;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 10mm / Tierra;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 10mm / Blanco;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 1,5mm / Rojo;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 1,5mm / Celeste;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 1,5mm / Marron;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 1,5mm / Negro;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 1,5mm / Tierra;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 1,5mm / Blanco;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 6mm / Rojo;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 6mm / Celeste;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 6mm / Marron;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 6mm / Negro;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 6mm / Tierra;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 6mm / Blanco;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 2,5mm / Rojo;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 2,5mm / Celeste;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 2,5mm / Marron;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 2,5mm / Negro;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 2,5mm / Tierra;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 2,5mm / Blanco;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 4mm / Rojo;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 4mm / Celeste;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 4mm / Marron;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 4mm / Negro;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 4mm / Tierra;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 4mm / Blanco;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 16mm / Rojo;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 16mm / Celeste;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 16mm / Marron;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 16mm / Negro;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 16mm / Tierra;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1mm / 16mm / Blanco;0;;sin coincidencia;;
+Sin migrar;Cables / Unipolar / 1,5mm / Tierra;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 6mm / Rojo;5;1;ya tiene stock actual;;
+Sin migrar;Cables / Unipolar / 6mm / Tierra;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 6mm / Blanco;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 4mm / Blanco;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 10mm / Tierra;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 10mm / Blanco;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 16mm / Rojo;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 16mm / Celeste;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 16mm / Marron;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 16mm / Negro;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 16mm / Tierra;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 16mm / Blanco;0;10;valor por defecto 10;;
+Sin migrar;Cables / Unipolar / 2,5mm / Blanco;0;10;valor por defecto 10;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / TM / TM 2x6A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / TM / TM 2x10A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / TM / TM 2x16A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / TM / TM 2x20A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / TM / TM 2x25A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / TM / TM 2x32A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / TM / TM 2x40A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / TM / TM 2x50A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / TM / TM 2x63A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / ID / ID 2x16A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / ID / ID 2x25A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / ID / TM 2x32A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / ID / ID 2x40A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / ID / ID 2x63A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / ID / ID 2x80A;0;;sin coincidencia;;
+Sin migrar;Elementos para tablero / Protecciones / Schneider / Bipolar / ID / ID 2x100A;0;;sin coincidencia;;
+Sin migrar;"Canalizaciones / Caño corrugado / 3/4""";11;;ya tiene stock actual;;
+Sin migrar;"Canalizaciones / Caño corrugado / 7/8""";0;;sin coincidencia;;
+Sin migrar;"Canalizaciones / Caño corrugado / 1 1/2""";0;;sin coincidencia;;
+Sin migrar;"Canalizaciones / Caño corrugado / 2""";0;;sin coincidencia;;
+Sin migrar;"Canalizaciones / Caño corrugado / 2 1/2""";0;;sin coincidencia;;
+Sin migrar;"Canalizaciones / DAISA / 3/4""";0;;sin coincidencia;;
+Sin migrar;"Canalizaciones / DAISA / 1""";0;;sin coincidencia;;
+Sin migrar;"Canalizaciones / DAISA / 1 1/2""";0;;sin coincidencia;;
+Sin migrar;"Canalizaciones / DAISA / 2""";0;;sin coincidencia;;
+Sin migrar;Iluminacion / Plafones / 22x22;0;10;valor por defecto 10;;
+Sin migrar;Iluminacion / Plafones / 10x10;0;10;valor por defecto 10;;
+Sin migrar;Iluminacion / Plafones / 20x20;0;10;valor por defecto 10;;
+Sin migrar;Iluminacion / Plafones / 40x40;0;10;valor por defecto 10;;
+Sin migrar;Iluminacion / Focos / Dicroicas;3;35;ya tiene stock actual;;

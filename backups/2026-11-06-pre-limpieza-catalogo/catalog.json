@@ -1,0 +1,834 @@
+[
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/catalog/tree",
+  "fields": {
+   "Cables": {
+    "mapValue": {
+     "fields": {
+      "Bipolar": {
+       "arrayValue": {}
+      },
+      "Unipolar": {
+       "mapValue": {
+        "fields": {
+         "1,5mm": {
+          "arrayValue": {
+           "values": [
+            {
+             "stringValue": "Rojo"
+            },
+            {
+             "stringValue": "Celeste"
+            },
+            {
+             "stringValue": "Marron"
+            },
+            {
+             "stringValue": "Negro"
+            },
+            {
+             "stringValue": "Tierra"
+            },
+            {
+             "stringValue": "Blanco"
+            }
+           ]
+          }
+         },
+         "10mm": {
+          "arrayValue": {
+           "values": [
+            {
+             "stringValue": "Rojo"
+            },
+            {
+             "stringValue": "Celeste"
+            },
+            {
+             "stringValue": "Marron"
+            },
+            {
+             "stringValue": "Negro"
+            },
+            {
+             "stringValue": "Tierra"
+            },
+            {
+             "stringValue": "Blanco"
+            }
+           ]
+          }
+         },
+         "1mm": {
+          "mapValue": {
+           "fields": {
+            "16mm": {
+             "arrayValue": {
+              "values": [
+               {
+                "stringValue": "Rojo"
+               },
+               {
+                "stringValue": "Celeste"
+               },
+               {
+                "stringValue": "Marron"
+               },
+               {
+                "stringValue": "Negro"
+               },
+               {
+                "stringValue": "Tierra"
+               },
+               {
+                "stringValue": "Blanco"
+               }
+              ]
+             }
+            },
+            "1mm": {
+             "arrayValue": {}
+            },
+            "2,5mm": {
+             "arrayValue": {
+              "values": [
+               {
+                "stringValue": "Rojo"
+               },
+               {
+                "stringValue": "Celeste"
+               },
+               {
+                "stringValue": "Marron"
+               },
+               {
+                "stringValue": "Negro"
+               },
+               {
+                "stringValue": "Tierra"
+               },
+               {
+                "stringValue": "Blanco"
+               }
+              ]
+             }
+            },
+            "10mm": {
+             "arrayValue": {
+              "values": [
+               {
+                "stringValue": "Rojo"
+               },
+               {
+                "stringValue": "Celeste"
+               },
+               {
+                "stringValue": "Marron"
+               },
+               {
+                "stringValue": "Negro"
+               },
+               {
+                "stringValue": "Tierra"
+               },
+               {
+                "stringValue": "Blanco"
+               }
+              ]
+             }
+            },
+            "1,5mm": {
+             "arrayValue": {
+              "values": [
+               {
+                "stringValue": "Rojo"
+               },
+               {
+                "stringValue": "Celeste"
+               },
+               {
+                "stringValue": "Marron"
+               },
+               {
+                "stringValue": "Negro"
+               },
+               {
+                "stringValue": "Tierra"
+               },
+               {
+                "stringValue": "Blanco"
+               }
+              ]
+             }
+            },
+            "6mm": {
+             "arrayValue": {
+              "values": [
+               {
+                "stringValue": "Rojo"
+               },
+               {
+                "stringValue": "Celeste"
+               },
+               {
+                "stringValue": "Marron"
+               },
+               {
+                "stringValue": "Negro"
+               },
+               {
+                "stringValue": "Tierra"
+               },
+               {
+                "stringValue": "Blanco"
+               }
+              ]
+             }
+            },
+            "4mm": {
+             "arrayValue": {
+              "values": [
+               {
+                "stringValue": "Rojo"
+               },
+               {
+                "stringValue": "Celeste"
+               },
+               {
+                "stringValue": "Marron"
+               },
+               {
+                "stringValue": "Negro"
+               },
+               {
+                "stringValue": "Tierra"
+               },
+               {
+                "stringValue": "Blanco"
+               }
+              ]
+             }
+            }
+           }
+          }
+         },
+         "16mm": {
+          "arrayValue": {
+           "values": [
+            {
+             "stringValue": "Rojo"
+            },
+            {
+             "stringValue": "Celeste"
+            },
+            {
+             "stringValue": "Marron"
+            },
+            {
+             "stringValue": "Negro"
+            },
+            {
+             "stringValue": "Tierra"
+            },
+            {
+             "stringValue": "Blanco"
+            }
+           ]
+          }
+         },
+         "2,5mm": {
+          "arrayValue": {
+           "values": [
+            {
+             "stringValue": "Rojo"
+            },
+            {
+             "stringValue": "Celeste"
+            },
+            {
+             "stringValue": "Marron"
+            },
+            {
+             "stringValue": "Negro"
+            },
+            {
+             "stringValue": "Tierra"
+            },
+            {
+             "stringValue": "Blanco"
+            }
+           ]
+          }
+         },
+         "4mm": {
+          "arrayValue": {
+           "values": [
+            {
+             "stringValue": "Rojo"
+            },
+            {
+             "stringValue": "Celeste"
+            },
+            {
+             "stringValue": "Marron"
+            },
+            {
+             "stringValue": "Negro"
+            },
+            {
+             "stringValue": "Tierra"
+            },
+            {
+             "stringValue": "Blanco"
+            }
+           ]
+          }
+         },
+         "6mm": {
+          "arrayValue": {
+           "values": [
+            {
+             "stringValue": "Rojo"
+            },
+            {
+             "stringValue": "Celeste"
+            },
+            {
+             "stringValue": "Marron"
+            },
+            {
+             "stringValue": "Negro"
+            },
+            {
+             "stringValue": "Tierra"
+            },
+            {
+             "stringValue": "Blanco"
+            }
+           ]
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   "Cajas y gabinetes": {
+    "mapValue": {
+     "fields": {
+      "Metálicas": {
+       "mapValue": {
+        "fields": {
+         "Tableros": {
+          "arrayValue": {
+           "values": [
+            {
+             "stringValue": "GEE 3545-12 2f-36mod"
+            },
+            {
+             "stringValue": "GEE 5045-12 3f-54mod"
+            },
+            {
+             "stringValue": "GEE 3530-12 2f-20mod"
+            },
+            {
+             "stringValue": "GEE 7560-16 P"
+            },
+            {
+             "stringValue": "GE 4030-16"
+            },
+            {
+             "stringValue": "GE 4545-21"
+            },
+            {
+             "stringValue": "GE 5040-16"
+            },
+            {
+             "stringValue": "GECLK 6060-20"
+            }
+           ]
+          }
+         },
+         "Cajas": {
+          "arrayValue": {
+           "values": [
+            {
+             "stringValue": "100x100x100mm"
+            },
+            {
+             "stringValue": "150x150x100mm"
+            },
+            {
+             "stringValue": "150x200x100mm"
+            },
+            {
+             "stringValue": "150x250x100mm"
+            },
+            {
+             "stringValue": "200x200x100mm"
+            },
+            {
+             "stringValue": "200x300x100mm"
+            },
+            {
+             "stringValue": "200x400x100mm"
+            },
+            {
+             "stringValue": "250x250x100mm"
+            },
+            {
+             "stringValue": "300x300x100mm"
+            },
+            {
+             "stringValue": "400x400x100mm"
+            },
+            {
+             "stringValue": "500x500x100mm"
+            },
+            {
+             "stringValue": "600x600x100mm"
+            }
+           ]
+          }
+         }
+        }
+       }
+      },
+      "Plásticas": {
+       "mapValue": {
+        "fields": {
+         "Tableros": {
+          "mapValue": {
+           "fields": {
+            "Embutir": {
+             "arrayValue": {
+              "values": [
+               {
+                "stringValue": "4mod."
+               },
+               {
+                "stringValue": "8mod."
+               },
+               {
+                "stringValue": "12mod."
+               },
+               {
+                "stringValue": "16mod."
+               },
+               {
+                "stringValue": "18mod."
+               },
+               {
+                "stringValue": "22mod."
+               },
+               {
+                "stringValue": "24mod."
+               },
+               {
+                "stringValue": "32mod."
+               },
+               {
+                "stringValue": "48mod."
+               }
+              ]
+             }
+            },
+            "Exterior": {
+             "arrayValue": {
+              "values": [
+               {
+                "stringValue": "4mod."
+               },
+               {
+                "stringValue": "8mod."
+               },
+               {
+                "stringValue": "12mod."
+               },
+               {
+                "stringValue": "16mod."
+               },
+               {
+                "stringValue": "18mod."
+               },
+               {
+                "stringValue": "22mod."
+               },
+               {
+                "stringValue": "24mod."
+               },
+               {
+                "stringValue": "32mod."
+               },
+               {
+                "stringValue": "48mod."
+               }
+              ]
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   "Herramientas": {
+    "mapValue": {}
+   },
+   "Iluminacion": {
+    "mapValue": {
+     "fields": {
+      "Plafones": {
+       "arrayValue": {
+        "values": [
+         {
+          "stringValue": "17"
+         },
+         {
+          "stringValue": "22x22"
+         },
+         {
+          "stringValue": "10x10"
+         },
+         {
+          "stringValue": "20x20"
+         },
+         {
+          "stringValue": "40x40"
+         }
+        ]
+       }
+      },
+      "Focos": {
+       "arrayValue": {
+        "values": [
+         {
+          "stringValue": "Dicroicas"
+         }
+        ]
+       }
+      },
+      "Tubos": {
+       "mapValue": {}
+      }
+     }
+    }
+   },
+   "SeH": {
+    "mapValue": {
+     "fields": {
+      "Elementos de seguridad": {
+       "mapValue": {}
+      },
+      "Protección personal": {
+       "mapValue": {}
+      },
+      "Ropa": {
+       "mapValue": {}
+      }
+     }
+    }
+   },
+   "Canalizaciones": {
+    "mapValue": {
+     "fields": {
+      "Caño plástico rígido": {
+       "arrayValue": {}
+      },
+      "Caño corrugado": {
+       "arrayValue": {
+        "values": [
+         {
+          "stringValue": "3/4\""
+         },
+         {
+          "stringValue": "7/8\""
+         },
+         {
+          "stringValue": "1\""
+         },
+         {
+          "stringValue": "1 1/2\""
+         },
+         {
+          "stringValue": "2\""
+         },
+         {
+          "stringValue": "2 1/2\""
+         }
+        ]
+       }
+      },
+      "Caño manguera": {
+       "mapValue": {}
+      },
+      "DAISA": {
+       "arrayValue": {
+        "values": [
+         {
+          "stringValue": "3/4\""
+         },
+         {
+          "stringValue": "1\""
+         },
+         {
+          "stringValue": "1 1/2\""
+         },
+         {
+          "stringValue": "2\""
+         }
+        ]
+       }
+      },
+      "Cablecanal": {
+       "arrayValue": {}
+      },
+      "Bandeja metálica": {
+       "arrayValue": {}
+      },
+      "Caño hierro": {
+       "arrayValue": {}
+      }
+     }
+    }
+   },
+   "Cambre S.XXII": {
+    "mapValue": {
+     "fields": {
+      "Tapas": {
+       "arrayValue": {
+        "values": [
+         {
+          "stringValue": "4 modulos"
+         },
+         {
+          "stringValue": "3 modulos"
+         },
+         {
+          "stringValue": "2 modulos"
+         },
+         {
+          "stringValue": "1 modulo"
+         },
+         {
+          "stringValue": "Tapa ciega"
+         },
+         {
+          "stringValue": "Tapa mignon"
+         },
+         {
+          "stringValue": "Tapa capsulada"
+         }
+        ]
+       }
+      },
+      "Pulsadores": {
+       "arrayValue": {
+        "values": [
+         {
+          "stringValue": "De punto"
+         },
+         {
+          "stringValue": "Combinado"
+         },
+         {
+          "stringValue": "Pulsador"
+         }
+        ]
+       }
+      },
+      "Bastidores": {
+       "arrayValue": {
+        "values": [
+         {
+          "stringValue": "Doble"
+         },
+         {
+          "stringValue": "Mignon"
+         }
+        ]
+       }
+      },
+      "Toma": {
+       "arrayValue": {
+        "values": [
+         {
+          "stringValue": "Doble"
+         },
+         {
+          "stringValue": "Simple 10A"
+         },
+         {
+          "stringValue": "Simple 20A"
+         }
+        ]
+       }
+      }
+     }
+    }
+   },
+   "Elementos para tablero": {
+    "mapValue": {
+     "fields": {
+      "Contactores": {
+       "mapValue": {}
+      },
+      "Seccionadores": {
+       "mapValue": {
+        "fields": {
+         "Portafusible": {
+          "mapValue": {}
+         },
+         "Bajo Carga": {
+          "mapValue": {}
+         }
+        }
+       }
+      },
+      "Protecciones": {
+       "mapValue": {
+        "fields": {
+         "Schneider": {
+          "mapValue": {
+           "fields": {
+            "Bipolar": {
+             "mapValue": {
+              "fields": {
+               "TM": {
+                "arrayValue": {
+                 "values": [
+                  {
+                   "stringValue": "TM 2x6A"
+                  },
+                  {
+                   "stringValue": "TM 2x10A"
+                  },
+                  {
+                   "stringValue": "TM 2x16A"
+                  },
+                  {
+                   "stringValue": "TM 2x20A"
+                  },
+                  {
+                   "stringValue": "TM 2x25A"
+                  },
+                  {
+                   "stringValue": "TM 2x32A"
+                  },
+                  {
+                   "stringValue": "TM 2x40A"
+                  },
+                  {
+                   "stringValue": "TM 2x50A"
+                  },
+                  {
+                   "stringValue": "TM 2x63A"
+                  }
+                 ]
+                }
+               },
+               "ID": {
+                "arrayValue": {
+                 "values": [
+                  {
+                   "stringValue": "ID 2x16A"
+                  },
+                  {
+                   "stringValue": "ID 2x25A"
+                  },
+                  {
+                   "stringValue": "TM 2x32A"
+                  },
+                  {
+                   "stringValue": "ID 2x40A"
+                  },
+                  {
+                   "stringValue": "ID 2x63A"
+                  },
+                  {
+                   "stringValue": "ID 2x80A"
+                  },
+                  {
+                   "stringValue": "ID 2x100A"
+                  }
+                 ]
+                }
+               }
+              }
+             }
+            },
+            "Tripolar": {
+             "mapValue": {
+              "fields": {
+               "TM": {
+                "mapValue": {}
+               }
+              }
+             }
+            },
+            "Tetrapolar": {
+             "mapValue": {
+              "fields": {
+               "ID": {
+                "mapValue": {}
+               },
+               "TM": {
+                "mapValue": {}
+               }
+              }
+             }
+            }
+           }
+          }
+         },
+         "Obra": {
+          "mapValue": {
+           "fields": {
+            "Tetrapolar": {
+             "mapValue": {
+              "fields": {
+               "TM": {
+                "mapValue": {}
+               },
+               "ID": {
+                "mapValue": {}
+               }
+              }
+             }
+            },
+            "Bipolar": {
+             "mapValue": {
+              "fields": {
+               "TM": {
+                "mapValue": {}
+               },
+               "ID": {
+                "mapValue": {}
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   "Varios": {
+    "mapValue": {}
+   },
+   "Bulonería": {
+    "mapValue": {}
+   }
+  },
+  "createTime": "2026-07-22T13:01:49.724484Z",
+  "updateTime": "2026-09-23T17:08:02.758681Z"
+ }
+]

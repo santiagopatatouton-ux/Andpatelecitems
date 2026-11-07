@@ -1,0 +1,3099 @@
+[
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/03SEMKaK6xAyOZCVyQB5",
+  "fields": {
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "stockBefore": {
+    "integerValue": "3"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "DMT 012 X"
+      }
+     ]
+    }
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:17:17.860Z"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "4"
+   }
+  },
+  "createTime": "2026-08-21T17:17:17.898588Z",
+  "updateTime": "2026-08-21T17:17:17.898588Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/0r5n9HYzTO3VFlVIxGGO",
+  "fields": {
+   "stockAfter": {
+    "integerValue": "2"
+   },
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "1mm"
+      },
+      {
+       "stringValue": "Tierra"
+      }
+     ]
+    }
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:27:14.452Z"
+   },
+   "notes": {
+    "stringValue": ""
+   }
+  },
+  "createTime": "2026-09-04T17:27:14.507095Z",
+  "updateTime": "2026-09-04T17:27:14.507095Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/1PBwyKag5RaFspuW4WRY",
+  "fields": {
+   "stockAfter": {
+    "integerValue": "435"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:24:16.310Z"
+   },
+   "quantity": {
+    "integerValue": "435"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Llaves de luz"
+      },
+      {
+       "stringValue": "Modulos"
+      },
+      {
+       "stringValue": "Toma doble"
+      }
+     ]
+    }
+   },
+   "docId": {
+    "stringValue": "toma doble"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "notes": {
+    "stringValue": ""
+   }
+  },
+  "createTime": "2026-07-22T17:24:16.374932Z",
+  "updateTime": "2026-07-22T17:24:16.374932Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/1g1ek5LacvtmInOVhvno",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:17:08.371Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "DMT 012 X"
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "quantity": {
+    "integerValue": "1"
+   }
+  },
+  "createTime": "2026-08-21T17:17:08.411549Z",
+  "updateTime": "2026-08-21T17:17:08.411549Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/2belK4FOvTmkPykEbbgk",
+  "fields": {
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "2"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-10T16:57:46.445Z"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "docId": {
+    "stringValue": "canalizaciones_daisa_3_4_ce034"
+   },
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "CE034"
+      }
+     ]
+    }
+   }
+  },
+  "createTime": "2026-08-10T16:57:46.505294Z",
+  "updateTime": "2026-08-10T16:57:46.505294Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/4UhNNR22IDWKnPmDZ5IK",
+  "fields": {
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1¼"
+      },
+      {
+       "stringValue": "GS110"
+      }
+     ]
+    }
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "docId": {
+    "stringValue": "gs110"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:18:02.370Z"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "quantity": {
+    "integerValue": "600"
+   },
+   "stockAfter": {
+    "integerValue": "600"
+   }
+  },
+  "createTime": "2026-07-22T17:18:02.703668Z",
+  "updateTime": "2026-07-22T17:18:02.703668Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/4WwW6HyATRK5cOsU4rZM",
+  "fields": {
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "6"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockBefore": {
+    "integerValue": "5"
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:17:19.517Z"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "DMT 012 X"
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   }
+  },
+  "createTime": "2026-08-21T17:17:19.559571Z",
+  "updateTime": "2026-08-21T17:17:19.559571Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/56tQYuBIZnzHZOGds2gx",
+  "fields": {
+   "stockAfter": {
+    "integerValue": "750"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:14:45.167Z"
+   },
+   "quantity": {
+    "integerValue": "750"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1'"
+      },
+      {
+       "stringValue": "URT100"
+      }
+     ]
+    }
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "docId": {
+    "stringValue": "urt100"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   }
+  },
+  "createTime": "2026-07-22T17:14:45.215919Z",
+  "updateTime": "2026-07-22T17:14:45.215919Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/5Aa2s34r009NsSHROXmX",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "unitCost": {
+    "nullValue": null
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-21T15:24:09.476Z"
+   },
+   "supplier": {
+    "nullValue": null
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cajas y gabinetes"
+      },
+      {
+       "stringValue": "Metálicas"
+      },
+      {
+       "stringValue": "Tableros"
+      },
+      {
+       "stringValue": "GECLK 6060-20"
+      }
+     ]
+    }
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "totalCost": {
+    "nullValue": null
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "action": {
+    "stringValue": "compra"
+   },
+   "quantity": {
+    "integerValue": "1"
+   }
+  },
+  "createTime": "2026-09-21T15:24:09.524714Z",
+  "updateTime": "2026-09-21T15:24:09.524714Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/5MZHR1VewEw1eLDASqHG",
+  "fields": {
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "userId": {
+    "stringValue": "unknown"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "userName": {
+    "stringValue": "Desconocido"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-20T21:39:53.407Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "Caños"
+      }
+     ]
+    }
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   }
+  },
+  "createTime": "2026-08-20T21:39:53.460364Z",
+  "updateTime": "2026-08-20T21:39:53.460364Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/7IR6zz6IwmhqqgvolQ94",
+  "fields": {
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "stockBefore": {
+    "integerValue": "36"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:14:34.591Z"
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "2"
+      },
+      {
+       "stringValue": "NM 200"
+      }
+     ]
+    }
+   },
+   "stockAfter": {
+    "integerValue": "37"
+   }
+  },
+  "createTime": "2026-08-21T17:14:34.664229Z",
+  "updateTime": "2026-08-21T17:14:34.664229Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/7ZQR5z5dK6QWVMZaGQNa",
+  "fields": {
+   "action": {
+    "stringValue": "retirar"
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "stockAfter": {
+    "integerValue": "37"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:14:48.907Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "2"
+      },
+      {
+       "stringValue": "NM 200"
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "stockBefore": {
+    "integerValue": "38"
+   },
+   "quantity": {
+    "integerValue": "1"
+   }
+  },
+  "createTime": "2026-08-21T17:14:48.949568Z",
+  "updateTime": "2026-08-21T17:14:48.949568Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/7dahv1qVZT5e5UIsMYxX",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:17:18.703Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "DMT 012 X"
+      }
+     ]
+    }
+   },
+   "stockBefore": {
+    "integerValue": "4"
+   },
+   "stockAfter": {
+    "integerValue": "5"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   }
+  },
+  "createTime": "2026-08-21T17:17:18.747645Z",
+  "updateTime": "2026-08-21T17:17:18.747645Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/7malXS8wg229kClJxfHi",
+  "fields": {
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "quantity": {
+    "integerValue": "5"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "1mm"
+      },
+      {
+       "stringValue": "Tierra"
+      }
+     ]
+    }
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:27:59.197Z"
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockBefore": {
+    "integerValue": "6"
+   }
+  },
+  "createTime": "2026-09-04T17:27:59.242597Z",
+  "updateTime": "2026-09-04T17:27:59.242597Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/7skNMkZstVsz0tBNyowZ",
+  "fields": {
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "quantity": {
+    "integerValue": "400"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "UMT034"
+      }
+     ]
+    }
+   },
+   "docId": {
+    "stringValue": "umt034"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:06:40.685Z"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "stockAfter": {
+    "integerValue": "400"
+   }
+  },
+  "createTime": "2026-07-22T17:06:40.799619Z",
+  "updateTime": "2026-07-22T17:06:40.799619Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/9jaqS7kfCW15SS2CfA9Z",
+  "fields": {
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "quantity": {
+    "integerValue": "200"
+   },
+   "docId": {
+    "stringValue": "bastidores"
+   },
+   "stockAfter": {
+    "integerValue": "200"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Llaves de luz"
+      },
+      {
+       "stringValue": "Tapas"
+      },
+      {
+       "stringValue": "Bastidores"
+      }
+     ]
+    }
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-23T16:09:13.638Z"
+   },
+   "userId": {
+    "stringValue": "f12gTLj5PGceGw6aujAxgjhmUIl1"
+   },
+   "userName": {
+    "stringValue": "santiagopatat@gmail.com"
+   }
+  },
+  "createTime": "2026-07-23T16:09:13.699655Z",
+  "updateTime": "2026-07-23T16:09:13.699655Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/ALV8FV3SovR60ssMCKUf",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "GS034"
+      }
+     ]
+    }
+   },
+   "docId": {
+    "stringValue": "gs034"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:08:17.027Z"
+   },
+   "quantity": {
+    "integerValue": "500"
+   },
+   "stockAfter": {
+    "integerValue": "500"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   }
+  },
+  "createTime": "2026-07-22T17:08:17.090316Z",
+  "updateTime": "2026-07-22T17:08:17.090316Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/DYKj3mQlEhwgGSO9WpAE",
+  "fields": {
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "CE 012"
+      }
+     ]
+    }
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "quantity": {
+    "integerValue": "50"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "51"
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:30:20.510Z"
+   }
+  },
+  "createTime": "2026-09-04T17:30:20.569248Z",
+  "updateTime": "2026-09-04T17:30:20.569248Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/GxjaztwqVYhizNsKBkl5",
+  "fields": {
+   "stockBefore": {
+    "integerValue": "2"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "CE034"
+      }
+     ]
+    }
+   },
+   "quantity": {
+    "integerValue": "40"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockAfter": {
+    "integerValue": "42"
+   },
+   "docId": {
+    "stringValue": "canalizaciones_daisa_3_4_ce034"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-10T16:57:52.491Z"
+   },
+   "action": {
+    "stringValue": "devolver"
+   }
+  },
+  "createTime": "2026-08-10T16:57:52.552060Z",
+  "updateTime": "2026-08-10T16:57:52.552060Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/JmGrUgttsh5j445PWsxH",
+  "fields": {
+   "quantity": {
+    "integerValue": "300"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:13:38.259Z"
+   },
+   "stockAfter": {
+    "integerValue": "300"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1'"
+      },
+      {
+       "stringValue": "UCT100"
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "docId": {
+    "stringValue": "uct100"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "notes": {
+    "stringValue": ""
+   }
+  },
+  "createTime": "2026-07-22T17:13:38.375744Z",
+  "updateTime": "2026-07-22T17:13:38.375744Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/KcAHcjGQjE7ljhdtWhOl",
+  "fields": {
+   "stockAfter": {
+    "integerValue": "800"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "docId": {
+    "stringValue": "gs100"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1'"
+      },
+      {
+       "stringValue": "GS100"
+      }
+     ]
+    }
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "quantity": {
+    "integerValue": "800"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:09:57.812Z"
+   }
+  },
+  "createTime": "2026-07-22T17:09:57.864131Z",
+  "updateTime": "2026-07-22T17:09:57.864131Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/KjLjy2OoEgFvtMC6LTTw",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:53:41.454Z"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "1mm"
+      },
+      {
+       "stringValue": "Celeste"
+      }
+     ]
+    }
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   }
+  },
+  "createTime": "2026-09-04T17:53:41.496639Z",
+  "updateTime": "2026-09-04T17:53:41.496639Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/LEmJ2yd6NxtLUtsQUu5B",
+  "fields": {
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "DMT 012 X"
+      }
+     ]
+    }
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:17:23.287Z"
+   },
+   "stockAfter": {
+    "integerValue": "5"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "stockBefore": {
+    "integerValue": "6"
+   },
+   "action": {
+    "stringValue": "retirar"
+   }
+  },
+  "createTime": "2026-08-21T17:17:23.332477Z",
+  "updateTime": "2026-08-21T17:17:23.332477Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/LtoYkxGiIPNDKHUBMTHR",
+  "fields": {
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:24:34.057Z"
+   },
+   "userName": {
+    "stringValue": "Carlos Andelique"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1 1/2´"
+      },
+      {
+       "stringValue": "KSR 112"
+      }
+     ]
+    }
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "102sKEhWJTPTSjk4fOzegmtchMz1"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   }
+  },
+  "createTime": "2026-08-21T17:24:34.091793Z",
+  "updateTime": "2026-08-21T17:24:34.091793Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/MIsSNL0rLATbXmEaZN6v",
+  "fields": {
+   "notes": {
+    "stringValue": "Acción rápida"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-23T17:23:21.530Z"
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "userName": {
+    "stringValue": "Desconocido"
+   },
+   "docId": {
+    "stringValue": "cables_unipolar_2_5mm_rojo"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "2,5mm"
+      },
+      {
+       "stringValue": "Rojo"
+      }
+     ]
+    }
+   },
+   "stockAfter": {
+    "integerValue": "16"
+   },
+   "stockBefore": {
+    "integerValue": "26"
+   },
+   "userId": {
+    "stringValue": "unknown"
+   },
+   "quantity": {
+    "integerValue": "10"
+   }
+  },
+  "createTime": "2026-07-23T17:23:21.579546Z",
+  "updateTime": "2026-07-23T17:23:21.579546Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/MgPEch82v2D70oZp32Zu",
+  "fields": {
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:24:02.460Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1 1/2´"
+      },
+      {
+       "stringValue": "KSR 112"
+      }
+     ]
+    }
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "quantity": {
+    "integerValue": "3"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "3"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   }
+  },
+  "createTime": "2026-09-04T17:24:02.541255Z",
+  "updateTime": "2026-09-04T17:24:02.541255Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/OVXAy4wey96UTc2bihCr",
+  "fields": {
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:21:07.360Z"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "docId": {
+    "stringValue": "urt112"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "stockAfter": {
+    "integerValue": "100"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1½"
+      },
+      {
+       "stringValue": "URT112"
+      }
+     ]
+    }
+   },
+   "quantity": {
+    "integerValue": "100"
+   }
+  },
+  "createTime": "2026-07-22T17:21:07.417412Z",
+  "updateTime": "2026-07-22T17:21:07.417412Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/OvqOIBH7RHJzwOLbYDAe",
+  "fields": {
+   "stockAfter": {
+    "integerValue": "0"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1 1/2´"
+      },
+      {
+       "stringValue": "KSR 112"
+      }
+     ]
+    }
+   },
+   "stockBefore": {
+    "integerValue": "10"
+   },
+   "quantity": {
+    "integerValue": "10"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:25:57.087Z"
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userId": {
+    "stringValue": "102sKEhWJTPTSjk4fOzegmtchMz1"
+   },
+   "userName": {
+    "stringValue": "Carlos Andelique"
+   }
+  },
+  "createTime": "2026-08-21T17:25:57.147037Z",
+  "updateTime": "2026-08-21T17:25:57.147037Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/PLc5ties2Hougbap9rc5",
+  "fields": {
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "UCT034"
+      }
+     ]
+    }
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:03:56.106Z"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "docId": {
+    "stringValue": "uct034"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   }
+  },
+  "createTime": "2026-07-22T17:03:56.160952Z",
+  "updateTime": "2026-07-22T17:03:56.160952Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/Rryaq3naXl7UTGElfU4D",
+  "fields": {
+   "quantity": {
+    "integerValue": "1"
+   },
+   "stockBefore": {
+    "integerValue": "2"
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "DMT 012 X"
+      }
+     ]
+    }
+   },
+   "stockAfter": {
+    "integerValue": "3"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:17:17.202Z"
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "action": {
+    "stringValue": "devolver"
+   }
+  },
+  "createTime": "2026-08-21T17:17:17.250752Z",
+  "updateTime": "2026-08-21T17:17:17.250752Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/SnXNarwZnGKiKC7Bm5GL",
+  "fields": {
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "102sKEhWJTPTSjk4fOzegmtchMz1"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1 1/2´"
+      },
+      {
+       "stringValue": "KSR 112"
+      }
+     ]
+    }
+   },
+   "stockBefore": {
+    "integerValue": "11"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:25:32.636Z"
+   },
+   "userName": {
+    "stringValue": "Carlos Andelique"
+   },
+   "stockAfter": {
+    "integerValue": "10"
+   }
+  },
+  "createTime": "2026-08-21T17:25:32.722454Z",
+  "updateTime": "2026-08-21T17:25:32.722454Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/V9j77suhk6sLP1TnSNWj",
+  "fields": {
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "stockBefore": {
+    "integerValue": "2"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "1mm"
+      },
+      {
+       "stringValue": "Tierra"
+      }
+     ]
+    }
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:27:18.646Z"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   }
+  },
+  "createTime": "2026-09-04T17:27:18.961258Z",
+  "updateTime": "2026-09-04T17:27:18.961258Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/WClthUdnPy9zX3P8GwFy",
+  "fields": {
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "CE 012"
+      }
+     ]
+    }
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:26:39.326Z"
+   },
+   "action": {
+    "stringValue": "devolver"
+   }
+  },
+  "createTime": "2026-09-04T17:26:39.379983Z",
+  "updateTime": "2026-09-04T17:26:39.379983Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/XHTbxlly55uQxFbx20lg",
+  "fields": {
+   "stockAfter": {
+    "integerValue": "39"
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "stockBefore": {
+    "integerValue": "38"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "2"
+      },
+      {
+       "stringValue": "NM 200"
+      }
+     ]
+    }
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:14:36.714Z"
+   },
+   "notes": {
+    "stringValue": ""
+   }
+  },
+  "createTime": "2026-08-21T17:14:36.762121Z",
+  "updateTime": "2026-08-21T17:14:36.762121Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/XkcIAz9HrxCdN1yVeNgE",
+  "fields": {
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "docId": {
+    "stringValue": "tapa suplementaria"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-23T16:08:43.436Z"
+   },
+   "userName": {
+    "stringValue": "santiagopatat@gmail.com"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockAfter": {
+    "integerValue": "450"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Llaves de luz"
+      },
+      {
+       "stringValue": "Tapas"
+      },
+      {
+       "stringValue": "Tapa suplementaria"
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "f12gTLj5PGceGw6aujAxgjhmUIl1"
+   },
+   "quantity": {
+    "integerValue": "450"
+   }
+  },
+  "createTime": "2026-07-23T16:08:43.520119Z",
+  "updateTime": "2026-07-23T16:08:43.520119Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/YKSzXTaOnMLa9CGWAY3x",
+  "fields": {
+   "stockBefore": {
+    "integerValue": "16"
+   },
+   "docId": {
+    "stringValue": "cables_unipolar_2_5mm_rojo"
+   },
+   "userId": {
+    "stringValue": "unknown"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-23T17:23:21.719Z"
+   },
+   "userName": {
+    "stringValue": "Desconocido"
+   },
+   "notes": {
+    "stringValue": "Acción rápida"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "26"
+   },
+   "quantity": {
+    "integerValue": "10"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "2,5mm"
+      },
+      {
+       "stringValue": "Rojo"
+      }
+     ]
+    }
+   }
+  },
+  "createTime": "2026-07-23T17:23:21.781337Z",
+  "updateTime": "2026-07-23T17:23:21.781337Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/YSUh3kqmiEPFUZgntPyN",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "1mm"
+      },
+      {
+       "stringValue": "Tierra"
+      }
+     ]
+    }
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:27:38.821Z"
+   },
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "stockAfter": {
+    "integerValue": "6"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "quantity": {
+    "integerValue": "5"
+   }
+  },
+  "createTime": "2026-09-04T17:27:38.863740Z",
+  "updateTime": "2026-09-04T17:27:38.863740Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/YzRNyjVOJRpzPOO3QmeU",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "docId": {
+    "stringValue": "canalizaciones_daisa_3_4_ce034"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-10T16:57:45.081Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "CE034"
+      }
+     ]
+    }
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   }
+  },
+  "createTime": "2026-08-10T16:57:45.139403Z",
+  "updateTime": "2026-08-10T16:57:45.139403Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/Zf8lYsxHZHGj4hkgJbBz",
+  "fields": {
+   "action": {
+    "stringValue": "devolver"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:20:44.777Z"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "docId": {
+    "stringValue": "gs112"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockAfter": {
+    "integerValue": "100"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1½"
+      },
+      {
+       "stringValue": "GS112"
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "quantity": {
+    "integerValue": "100"
+   }
+  },
+  "createTime": "2026-07-22T17:20:44.834467Z",
+  "updateTime": "2026-07-22T17:20:44.834467Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/ZqJ0XYajVYi5HJX2QYGA",
+  "fields": {
+   "quantity": {
+    "integerValue": "120"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Llaves de luz"
+      },
+      {
+       "stringValue": "Modulos"
+      },
+      {
+       "stringValue": "Pulsador"
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "f12gTLj5PGceGw6aujAxgjhmUIl1"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "userName": {
+    "stringValue": "santiagopatat@gmail.com"
+   },
+   "stockAfter": {
+    "integerValue": "120"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "docId": {
+    "stringValue": "pulsador"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-23T16:09:46.399Z"
+   }
+  },
+  "createTime": "2026-07-23T16:09:46.465486Z",
+  "updateTime": "2026-07-23T16:09:46.465486Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/eiDKn3jQ6bGMaDNn8w5h",
+  "fields": {
+   "quantity": {
+    "integerValue": "10"
+   },
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "11"
+   },
+   "userId": {
+    "stringValue": "102sKEhWJTPTSjk4fOzegmtchMz1"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:25:22.999Z"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1 1/2´"
+      },
+      {
+       "stringValue": "KSR 112"
+      }
+     ]
+    }
+   },
+   "userName": {
+    "stringValue": "Carlos Andelique"
+   }
+  },
+  "createTime": "2026-08-21T17:25:23.043163Z",
+  "updateTime": "2026-08-21T17:25:23.043163Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/fe356z6uPsdPojvbt8x8",
+  "fields": {
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:07:05.088Z"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "150"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "URT034"
+      }
+     ]
+    }
+   },
+   "docId": {
+    "stringValue": "urt034"
+   },
+   "quantity": {
+    "integerValue": "150"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "notes": {
+    "stringValue": ""
+   }
+  },
+  "createTime": "2026-07-22T17:07:05.149786Z",
+  "updateTime": "2026-07-22T17:07:05.149786Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/fepdsAbXmzPjfBBz8ehU",
+  "fields": {
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:14:48.204Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "2"
+      },
+      {
+       "stringValue": "NM 200"
+      }
+     ]
+    }
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "stockBefore": {
+    "integerValue": "39"
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "stockAfter": {
+    "integerValue": "38"
+   }
+  },
+  "createTime": "2026-08-21T17:14:48.251062Z",
+  "updateTime": "2026-08-21T17:14:48.251062Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/kGl55086ZWqps0fw4DYv",
+  "fields": {
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "1,5mm"
+      },
+      {
+       "stringValue": "Blanco"
+      }
+     ]
+    }
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "quantity": {
+    "integerValue": "9"
+   },
+   "stockBefore": {
+    "integerValue": "10"
+   },
+   "notes": {
+    "stringValue": "Colodrero"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-10T16:59:58.306Z"
+   },
+   "docId": {
+    "stringValue": "cables_unipolar_1_5mm_blanco"
+   }
+  },
+  "createTime": "2026-08-10T16:59:58.343249Z",
+  "updateTime": "2026-08-10T16:59:58.343249Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/ksd4T0ZftuHhrGDarmfl",
+  "fields": {
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "quantity": {
+    "integerValue": "36"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "2"
+      },
+      {
+       "stringValue": "NM 200"
+      }
+     ]
+    }
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:14:28.754Z"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "36"
+   }
+  },
+  "createTime": "2026-08-21T17:14:28.826951Z",
+  "updateTime": "2026-08-21T17:14:28.826951Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/kslR011yXBQrlJ3vX19w",
+  "fields": {
+   "totalCost": {
+    "nullValue": null
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "supplier": {
+    "nullValue": null
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "unitCost": {
+    "nullValue": null
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-16T14:08:44.665Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Llaves de luz"
+      },
+      {
+       "stringValue": "Tapas"
+      },
+      {
+       "stringValue": "4 modulos"
+      }
+     ]
+    }
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   }
+  },
+  "createTime": "2026-09-16T14:08:44.773574Z",
+  "updateTime": "2026-09-16T14:08:44.773574Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/lJ7Tr9xOUbTeF2EHw794",
+  "fields": {
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "quantity": {
+    "integerValue": "5"
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:28:04.929Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "1mm"
+      },
+      {
+       "stringValue": "Tierra"
+      }
+     ]
+    }
+   },
+   "stockAfter": {
+    "integerValue": "6"
+   },
+   "notes": {
+    "stringValue": ""
+   }
+  },
+  "createTime": "2026-09-04T17:28:04.983187Z",
+  "updateTime": "2026-09-04T17:28:04.983187Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/lLiHdFUXfZtPdfV48SDO",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:14:35.800Z"
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "2"
+      },
+      {
+       "stringValue": "NM 200"
+      }
+     ]
+    }
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "stockAfter": {
+    "integerValue": "38"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockBefore": {
+    "integerValue": "37"
+   }
+  },
+  "createTime": "2026-08-21T17:14:35.843367Z",
+  "updateTime": "2026-08-21T17:14:35.843367Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/lNiIThh4uERyscygSBtG",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "Camila Freire"
+   },
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "JlzYHBVrK0dPdG8HsCQVZR4HAI53"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Iluminacion"
+      },
+      {
+       "stringValue": "Focos"
+      },
+      {
+       "stringValue": "Dicroicas"
+      }
+     ]
+    }
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:29:39.430Z"
+   },
+   "stockAfter": {
+    "integerValue": "0"
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "quantity": {
+    "integerValue": "1"
+   }
+  },
+  "createTime": "2026-09-04T17:29:39.483569Z",
+  "updateTime": "2026-09-04T17:29:39.483569Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/mov_mve02zc4_4qsnyf5l",
+  "fields": {
+   "signature": {
+    "nullValue": null
+   },
+   "supplier": {
+    "nullValue": null
+   },
+   "unitCost": {
+    "nullValue": null
+   },
+   "timestamp": {
+    "timestampValue": "2026-10-18T15:48:55.689Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Caño corrugado"
+      },
+      {
+       "stringValue": "3/4\""
+      }
+     ]
+    }
+   },
+   "obraId": {
+    "stringValue": "tVcX8gOg15MMxesOjGOH"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "quantity": {
+    "integerValue": "11"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "nombreObra": {
+    "stringValue": "Mataderos"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockAfter": {
+    "integerValue": "11"
+   },
+   "source": {
+    "nullValue": null
+   },
+   "totalCost": {
+    "nullValue": null
+   },
+   "clientTimestamp": {
+    "integerValue": "1792338528100"
+   }
+  },
+  "createTime": "2026-10-18T15:48:55.733719Z",
+  "updateTime": "2026-10-18T15:48:55.733719Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/mov_mvv8lstn_ve7mmo4f",
+  "fields": {
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "6mm"
+      },
+      {
+       "stringValue": "Rojo"
+      }
+     ]
+    }
+   },
+   "timestamp": {
+    "timestampValue": "2026-10-30T17:19:46.323Z"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "obraId": {
+    "stringValue": "tVcX8gOg15MMxesOjGOH"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "signature": {
+    "nullValue": null
+   },
+   "stockAfter": {
+    "integerValue": "5"
+   },
+   "nombreObra": {
+    "stringValue": "Mataderos"
+   },
+   "clientTimestamp": {
+    "integerValue": "1793380784102"
+   },
+   "unitCost": {
+    "nullValue": null
+   },
+   "supplier": {
+    "nullValue": null
+   },
+   "source": {
+    "stringValue": "ai"
+   },
+   "totalCost": {
+    "nullValue": null
+   },
+   "notes": {
+    "stringValue": "✨ Cargado con el copiloto IA"
+   },
+   "quantity": {
+    "integerValue": "5"
+   },
+   "action": {
+    "stringValue": "devolver"
+   }
+  },
+  "createTime": "2026-10-30T17:19:46.420727Z",
+  "updateTime": "2026-10-30T17:19:46.420727Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/ntmwJuZIx8lPXgZdwooG",
+  "fields": {
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Iluminacion"
+      },
+      {
+       "stringValue": "Focos"
+      },
+      {
+       "stringValue": "Dicroicas"
+      }
+     ]
+    }
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "Camila Freire"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "JlzYHBVrK0dPdG8HsCQVZR4HAI53"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:29:37.885Z"
+   }
+  },
+  "createTime": "2026-09-04T17:29:37.934100Z",
+  "updateTime": "2026-09-04T17:29:37.934100Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/oVDi7JbksoIYJOawHPZj",
+  "fields": {
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "1½"
+      },
+      {
+       "stringValue": "UCT112"
+      }
+     ]
+    }
+   },
+   "quantity": {
+    "integerValue": "25"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "docId": {
+    "stringValue": "uct112"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "stockAfter": {
+    "integerValue": "25"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:21:21.501Z"
+   }
+  },
+  "createTime": "2026-07-22T17:21:21.586882Z",
+  "updateTime": "2026-07-22T17:21:21.586882Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/ovQSi11eMnGiOLtw88fn",
+  "fields": {
+   "stockBefore": {
+    "integerValue": "42"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "CE034"
+      }
+     ]
+    }
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockAfter": {
+    "integerValue": "0"
+   },
+   "quantity": {
+    "integerValue": "42"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-10T16:58:08.034Z"
+   },
+   "docId": {
+    "stringValue": "canalizaciones_daisa_3_4_ce034"
+   }
+  },
+  "createTime": "2026-08-10T16:58:08.089262Z",
+  "updateTime": "2026-08-10T16:58:08.089262Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/rLgPjiPbEnqR3NvDy8BJ",
+  "fields": {
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "3"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:56:49.614Z"
+   },
+   "quantity": {
+    "integerValue": "3"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Iluminacion"
+      },
+      {
+       "stringValue": "Focos"
+      },
+      {
+       "stringValue": "Dicroicas"
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   }
+  },
+  "createTime": "2026-09-04T17:56:49.675257Z",
+  "updateTime": "2026-09-04T17:56:49.675257Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/rmNLPvkgQjg5i8I1S9FX",
+  "fields": {
+   "notes": {
+    "stringValue": ""
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "1mm"
+      },
+      {
+       "stringValue": "Tierra"
+      }
+     ]
+    }
+   },
+   "stockAfter": {
+    "integerValue": "0"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:51:31.212Z"
+   },
+   "quantity": {
+    "integerValue": "6"
+   },
+   "stockBefore": {
+    "integerValue": "6"
+   }
+  },
+  "createTime": "2026-09-04T17:51:31.292723Z",
+  "updateTime": "2026-09-04T17:51:31.292723Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/s4bvqF8QaKwz0pigag2t",
+  "fields": {
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "UCT034"
+      }
+     ]
+    }
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "docId": {
+    "stringValue": "uct034"
+   },
+   "quantity": {
+    "integerValue": "149"
+   },
+   "userName": {
+    "stringValue": "sebastianpatat@hotmail.com"
+   },
+   "timestamp": {
+    "timestampValue": "2026-07-22T17:04:00.733Z"
+   },
+   "stockAfter": {
+    "integerValue": "150"
+   },
+   "userId": {
+    "stringValue": "lOWTa1kr8iRrfI0YNwUtJI1yOs03"
+   }
+  },
+  "createTime": "2026-07-22T17:04:00.806294Z",
+  "updateTime": "2026-07-22T17:04:00.806294Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/tZna8n62FGLmBU3fWNbr",
+  "fields": {
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Cables"
+      },
+      {
+       "stringValue": "Unipolar"
+      },
+      {
+       "stringValue": "1mm"
+      },
+      {
+       "stringValue": "Tierra"
+      }
+     ]
+    }
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:27:11.169Z"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockAfter": {
+    "integerValue": "1"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "stockBefore": {
+    "integerValue": "0"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   }
+  },
+  "createTime": "2026-09-04T17:27:11.221502Z",
+  "updateTime": "2026-09-04T17:27:11.221502Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/wjC4Kk8eI37XLupr7esr",
+  "fields": {
+   "stockBefore": {
+    "integerValue": "51"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "timestamp": {
+    "timestampValue": "2026-09-04T17:49:22.989Z"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "CE 012"
+      }
+     ]
+    }
+   },
+   "stockAfter": {
+    "integerValue": "50"
+   },
+   "action": {
+    "stringValue": "retirar"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   }
+  },
+  "createTime": "2026-09-04T17:49:23.105278Z",
+  "updateTime": "2026-09-04T17:49:23.105278Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/xI6IpPgwHHRLx0EPjUN0",
+  "fields": {
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "quantity": {
+    "integerValue": "1"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "stockAfter": {
+    "integerValue": "2"
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "DMT 012 X"
+      }
+     ]
+    }
+   },
+   "timestamp": {
+    "timestampValue": "2026-08-21T17:17:16.362Z"
+   },
+   "userId": {
+    "stringValue": "zID4ejKYR3MGKAqREEERTeO40hA2"
+   },
+   "userName": {
+    "stringValue": "Pablo Cirillo"
+   }
+  },
+  "createTime": "2026-08-21T17:17:16.447942Z",
+  "updateTime": "2026-08-21T17:17:16.447942Z"
+ },
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/movements/zW6EJ4cGMiR3JMIUDUyV",
+  "fields": {
+   "timestamp": {
+    "timestampValue": "2026-08-20T21:39:56.295Z"
+   },
+   "action": {
+    "stringValue": "devolver"
+   },
+   "stockBefore": {
+    "integerValue": "1"
+   },
+   "userName": {
+    "stringValue": "Desconocido"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "path": {
+    "arrayValue": {
+     "values": [
+      {
+       "stringValue": "Canalizaciones"
+      },
+      {
+       "stringValue": "Daisa"
+      },
+      {
+       "stringValue": "3/4"
+      },
+      {
+       "stringValue": "Caños"
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "unknown"
+   },
+   "quantity": {
+    "integerValue": "3"
+   },
+   "stockAfter": {
+    "integerValue": "4"
+   }
+  },
+  "createTime": "2026-08-20T21:39:56.339651Z",
+  "updateTime": "2026-08-20T21:39:56.339651Z"
+ }
+]

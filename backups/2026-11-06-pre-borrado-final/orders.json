@@ -1,0 +1,69 @@
+[
+ {
+  "name": "projects/andpatelecitems/databases/(default)/documents/orders/357KHxhnbXAIcg1xOJkW",
+  "fields": {
+   "resolvedByName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "notes": {
+    "stringValue": ""
+   },
+   "resolvedAt": {
+    "timestampValue": "2026-10-02T17:30:28.905Z"
+   },
+   "status": {
+    "stringValue": "rejected"
+   },
+   "rejectionReason": {
+    "stringValue": "Sin motivo especificado"
+   },
+   "items": {
+    "arrayValue": {
+     "values": [
+      {
+       "mapValue": {
+        "fields": {
+         "path": {
+          "arrayValue": {
+           "values": [
+            {
+             "stringValue": "Cambre S.XXII"
+            },
+            {
+             "stringValue": "Tapas"
+            },
+            {
+             "stringValue": "3 modulos"
+            }
+           ]
+          }
+         },
+         "name": {
+          "stringValue": "3 modulos"
+         },
+         "quantity": {
+          "integerValue": "1"
+         }
+        }
+       }
+      }
+     ]
+    }
+   },
+   "userId": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   },
+   "createdAt": {
+    "timestampValue": "2026-10-02T17:30:08.286Z"
+   },
+   "userName": {
+    "stringValue": "Sebastian Patat"
+   },
+   "resolvedBy": {
+    "stringValue": "qSMXmuR4ZfVfjvYDZdMkvB4aoUF2"
+   }
+  },
+  "createTime": "2026-10-02T17:30:08.361065Z",
+  "updateTime": "2026-10-02T17:30:28.979083Z"
+ }
+]
