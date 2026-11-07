@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { ItemRow } from '@/components/catalog';
 import { Screen } from '@/components/layout/screen';
 import { useFeedback } from '@/components/ui/feedback';
-import { Star, Trash2 } from '@/components/ui/icons';
+import { CircleAlert, Star, Trash2 } from '@/components/ui/icons';
 import {
   AppText,
   Card,
@@ -21,8 +21,8 @@ import { pathToDocId } from '@/utils/paths';
 
 export default function FavoritesScreen() {
   const router = useRouter();
-  const { favorites, loading, removeFavorite } = useFavorites();
-  const { items } = useCatalog();
+  const { favorites, loading, failed, removeFavorite } = useFavorites();
+  const { items, loading: catalogLoading, error: catalogError } = useCatalog();
   const { toast } = useFeedback();
 
   const handleRemove = async (favorite: Favorite) => {
@@ -39,8 +39,14 @@ export default function FavoritesScreen() {
       title="Favoritos"
       subtitle={`${favorites.length} ${favorites.length === 1 ? 'ítem' : 'ítems'}`}
     >
-      {loading ? (
+      {loading || catalogLoading ? (
         <Loading label="Cargando favoritos" />
+      ) : failed || catalogError ? (
+        <EmptyState
+          icon={CircleAlert}
+          title="No se pudieron cargar los favoritos"
+          message="Revisá la conexión y volvé a entrar."
+        />
       ) : favorites.length === 0 ? (
         <EmptyState
           icon={Star}

@@ -15,12 +15,17 @@ export interface MovementRow {
   unitCost?: number | null;
   totalCost?: number | null;
   supplier?: string | null;
+  obraId?: string;
+  nombreObra?: string;
+  reversalOf?: string;
 }
 
 export const ACTION_LABELS: Record<string, string> = {
   retirar: 'Egreso',
   devolver: 'Devolución',
   compra: 'Compra',
+  ajuste: 'Ajuste de conteo',
+  anulacion: 'Anulación',
 };
 
 type Cell = string | number | null;
@@ -37,6 +42,7 @@ const MOVEMENT_COLUMNS: { header: string; width: number; value: (row: MovementRo
   { header: 'Precio unit. ($)', width: 16, value: (row) => row.unitCost ?? null },
   { header: 'Total ($)', width: 14, value: (row) => row.totalCost ?? null },
   { header: 'Proveedor', width: 22, value: (row) => row.supplier ?? '' },
+  { header: 'Obra', width: 22, value: (row) => row.nombreObra ?? '' },
   { header: 'Notas', width: 32, value: (row) => row.notes ?? '' },
 ];
 
@@ -58,8 +64,13 @@ export function deliverWorkbook(workbook: XLSX.WorkBook, filename: string): stri
   return XLSX.write(workbook, { type: 'base64', bookType: 'xlsx' });
 }
 
-export const exportFilename = (prefix: string) =>
-  `${prefix}_andpatelec_${new Date().toISOString().split('T')[0]}.xlsx`;
+/** Usa la fecha local: la de UTC ya es mañana después de las 21 en Argentina. */
+export function exportFilename(prefix: string) {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${prefix}_andpatelec_${now.getFullYear()}-${month}-${day}.xlsx`;
+}
 
 export function exportMovementsToExcel(rows: MovementRow[], filename: string) {
   const workbook = XLSX.utils.book_new();

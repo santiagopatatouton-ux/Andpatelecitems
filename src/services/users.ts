@@ -3,7 +3,7 @@ import {
   sendPasswordResetEmail,
   signOut,
 } from 'firebase/auth';
-import { deleteDoc, doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 
 import { auth, db, getSecondaryAuth } from '@/lib/firebase';
 
@@ -37,7 +37,8 @@ export const updateUserName = (uid: string, displayName: string) =>
 export const updateUserRole = (uid: string, role: Role) =>
   updateDoc(doc(db, 'users', uid), { role });
 
-/** Sin perfil la cuenta pierde todo el acceso, aunque siga existiendo en Authentication. */
-export const deleteUserProfile = (uid: string) => deleteDoc(doc(db, 'users', uid));
+/** Desactivada, la cuenta pierde todo el acceso y conserva su historial y su email. */
+export const setUserDisabled = (uid: string, disabled: boolean) =>
+  updateDoc(doc(db, 'users', uid), { disabled });
 
 export const sendPasswordReset = (email: string) => sendPasswordResetEmail(auth, email);

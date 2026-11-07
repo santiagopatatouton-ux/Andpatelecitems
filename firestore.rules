@@ -7,9 +7,11 @@ rules_version = '2';
 // - Cuenta sin perfil en users/{uid}: nada. El registro de Firebase Auth está
 //   abierto porque Admin › Usuarios crea cuentas desde el cliente, así que estar
 //   logueado no alcanza: el perfil es lo que da acceso, y solo un admin lo crea.
-// - Empleado: lee catálogo y stock; mueve stock; crea y ve sus pedidos y
+// - Cuenta desactivada: nada. Conserva el perfil para poder reactivarla.
+// - Empleado: lee catálogo, stock y obras; mueve stock; crea y ve sus pedidos y
 //   movimientos; maneja sus favoritos.
-// - Admin: además edita catálogo y usuarios, resuelve pedidos y ve auditoría.
+// - Admin: además edita catálogo, usuarios y obras, resuelve pedidos, hace ajustes
+//   de stock y ve auditoría.
 //
 // Los movimientos y la auditoría son de solo agregado: no se editan ni se borran.
 // El primer admin de una base vacía se crea desde Firebase Console.
@@ -26,7 +28,9 @@ service cloud.firestore {
     }
 
     function isMember() {
-      return isSignedIn() && exists(profilePath());
+      return isSignedIn()
+        && exists(profilePath())
+        && get(profilePath()).data.get('disabled', false) != true;
     }
 
     function isAdmin() {
@@ -41,16 +45,22 @@ service cloud.firestore {
       let data = request.resource.data;
       return data.path is list
         && data.path.size() > 0
-        && (!('stock' in data) || (data.stock is number && data.stock >= 0));
+        && (!('stock' in data) || (data.stock is number && data.stock >= 0))
+        && (!('minStock' in data) || (data.minStock is number && data.minStock >= 0));
     }
 
     function isValidMovement() {
       let data = request.resource.data;
-      return data.action in ['retirar', 'devolver', 'compra']
+      return data.action in ['retirar', 'devolver', 'compra', 'ajuste', 'anulacion']
         && data.quantity is number
         && data.quantity > 0
         && data.path is list
         && data.timestamp == request.time;
+    }
+
+    // Ajustes por conteo y anulaciones: solo un admin.
+    function isEmployeeMovement() {
+      return request.resource.data.action in ['retirar', 'devolver', 'compra'];
     }
 
     // Catálogo: lo ven todos los miembros, lo edita un admin.
@@ -60,14 +70,16 @@ service cloud.firestore {
     }
 
     // Perfiles: cada uno ve el suyo; un admin ve y administra todos.
-    // Un admin no puede cambiar su propio rol ni borrarse.
+    // Un admin no puede cambiar su propio rol, desactivarse ni borrarse.
     match /users/{userId} {
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
       allow create: if isAdmin() && hasValidRole();
       allow update: if isAdmin()
         && hasValidRole()
         && (request.auth.uid != userId
-            || request.resource.data.role == resource.data.role);
+            || (request.resource.data.role == resource.data.role
+                && request.resource.data.get('disabled', false)
+                  == resource.data.get('disabled', false)));
       allow delete: if isAdmin() && request.auth.uid != userId;
 
       // Favoritos: solo su dueño.
@@ -76,11 +88,17 @@ service cloud.firestore {
       }
     }
 
-    // Stock: cualquier miembro lo mueve. Solo un admin borra documentos, al renombrar
-    // o eliminar ítems del catálogo.
+    // Stock: cualquier miembro lo mueve. Mínimo y código los define un admin. Solo un
+    // admin borra documentos, al renombrar o eliminar ítems del catálogo.
     match /stock/{stockId} {
       allow read: if isMember();
-      allow create, update: if isMember() && isValidStock();
+      allow create: if isMember()
+        && isValidStock()
+        && (isAdmin() || !request.resource.data.keys().hasAny(['minStock', 'code']));
+      allow update: if isMember()
+        && isValidStock()
+        && (isAdmin()
+            || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['minStock', 'code']));
       allow delete: if isAdmin();
     }
 
@@ -111,7 +129,9 @@ service cloud.firestore {
         || (isMember() && resource.data.userId == request.auth.uid);
       allow create: if isValidMovement()
         && (isAdmin()
-            || (isMember() && request.resource.data.userId == request.auth.uid));
+            || (isMember()
+                && isEmployeeMovement()
+                && request.resource.data.userId == request.auth.uid));
     }
 
     // Auditoría: solo admins, y cada uno firma lo suyo.
@@ -122,9 +142,10 @@ service cloud.firestore {
         && request.resource.data.timestamp == request.time;
     }
 
-    // La app no usa esta colección. Queda solo para admins por si tiene datos.
+    // Obras: las ven todos para asignar retiros, las administra un admin.
     match /obras/{obraId} {
-      allow read, write: if isAdmin();
+      allow read: if isMember();
+      allow write: if isAdmin();
     }
   }
 }

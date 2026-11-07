@@ -1,5 +1,12 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePathname, useRouter } from 'expo-router';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+  type DocumentData,
+} from 'firebase/firestore';
 import React, { useEffect, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,7 +27,7 @@ import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
 import { db } from '@/lib/firebase';
 import { colors, iconSize, iconStroke, layout, radius, spacing } from '@/theme/tokens';
-import { initials } from '@/utils/format';
+import { initials, toMillis } from '@/utils/format';
 
 interface NavItem {
   label: string;
@@ -35,38 +42,53 @@ export function useIsWide() {
   return useWindowDimensions().width >= layout.sidebarBreakpoint;
 }
 
-/** Pedidos pendientes: todos para un admin, los propios para un empleado. */
-function usePendingOrders() {
+/** Aviso de pedidos: pendientes para un admin; resueltos sin ver para un empleado. */
+function useOrdersBadge() {
   const { isAdmin, userProfile } = useAuth();
+  const pathname = usePathname();
   const uid = userProfile?.uid;
-  const [count, setCount] = useState(0);
+  const onOrders = pathname === '/orders';
+  const [orders, setOrders] = useState<DocumentData[]>([]);
+  const [seenAt, setSeenAt] = useState(Number.MAX_SAFE_INTEGER);
 
   useEffect(() => {
     if (!uid) return;
-    const orders = collection(db, 'orders');
+    const ref = collection(db, 'orders');
     const source = isAdmin
-      ? query(orders, where('status', '==', 'pending'))
-      : query(orders, where('userId', '==', uid));
+      ? query(ref, where('status', '==', 'pending'))
+      : query(ref, where('userId', '==', uid));
 
     return onSnapshot(
       source,
-      (snapshot) =>
-        setCount(snapshot.docs.filter((order) => order.data().status === 'pending').length),
-      (error) => console.error('Error loading pending orders:', error)
+      (snapshot) => setOrders(snapshot.docs.map((order) => order.data())),
+      (error) => console.error('Error loading orders badge:', error)
     );
   }, [isAdmin, uid]);
 
-  return count;
+  // Abrir Pedidos marca lo resuelto como visto, también en la próxima sesión.
+  useEffect(() => {
+    if (!uid || isAdmin) return;
+    const key = `andpatelec_orders_seen_${uid}`;
+    const now = Date.now();
+    const update = onOrders
+      ? AsyncStorage.setItem(key, String(now)).then(() => now)
+      : AsyncStorage.getItem(key).then((value) => Number(value ?? 0));
+    update.then(setSeenAt).catch((error) => console.error('Error loading orders seen:', error));
+  }, [uid, isAdmin, onOrders]);
+
+  if (isAdmin) return orders.length;
+  if (onOrders) return 0;
+  return orders.filter((order) => toMillis(order.resolvedAt) > seenAt).length;
 }
 
 function useNavItems(): NavItem[] {
   const { items } = useCart();
-  const pendingOrders = usePendingOrders();
+  const ordersBadge = useOrdersBadge();
   return [
     { label: 'Catálogo', href: '/', icon: Boxes, alsoActiveOn: ['/action'] },
     { label: 'Favoritos', href: '/favorites', icon: Star },
     { label: 'Carrito', href: '/cart', icon: ShoppingCart, badge: items.length },
-    { label: 'Pedidos', href: '/orders', icon: ClipboardList, badge: pendingOrders },
+    { label: 'Pedidos', href: '/orders', icon: ClipboardList, badge: ordersBadge },
     { label: 'Historial', href: '/history', icon: History },
   ];
 }

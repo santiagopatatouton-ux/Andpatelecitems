@@ -14,6 +14,7 @@ import { auth, db } from '@/lib/firebase';
 import type { Role } from '@/services/users';
 
 export interface UserProfile {
+  disabled?: boolean;
   uid: string;
   displayName: string;
   email: string;
@@ -63,9 +64,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       stopProfile = onSnapshot(
         doc(db, 'users', firebaseUser.uid),
         (snapshot) => {
+          // Sin conexión la caché puede venir vacía: eso no prueba que no haya perfil.
+          if (!snapshot.exists() && snapshot.metadata.fromCache) return;
+          const data = snapshot.data();
           setUserProfile(
-            snapshot.exists()
-              ? ({ ...snapshot.data(), uid: firebaseUser.uid } as UserProfile)
+            data && !data.disabled
+              ? ({
+                  ...data,
+                  uid: firebaseUser.uid,
+                  displayName: data.displayName ?? firebaseUser.email ?? 'Sin nombre',
+                } as UserProfile)
               : null
           );
           setLoading(false);

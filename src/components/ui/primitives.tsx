@@ -273,6 +273,7 @@ export function Segmented<T extends string>({
           <Pressable
             key={option}
             accessibilityRole="tab"
+            accessibilityLabel={label}
             accessibilityState={{ selected }}
             onPress={() => onChange(option)}
             style={[styles.segment, selected && styles.segmentSelected]}
@@ -490,7 +491,7 @@ const styles = StyleSheet.create({
   sectionTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
 
   chip: {
-    minHeight: 40,
+    minHeight: 44,
     paddingHorizontal: spacing.md,
     borderRadius: radius.full,
     borderWidth: 1,
@@ -512,7 +513,7 @@ const styles = StyleSheet.create({
   },
   segment: {
     flex: 1,
-    minHeight: 40,
+    minHeight: 44,
     paddingHorizontal: spacing.sm,
     borderRadius: radius.sm,
     flexDirection: 'row',

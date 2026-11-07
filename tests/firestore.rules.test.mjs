@@ -239,6 +239,90 @@ describe('empleado', () => {
   });
 });
 
+describe('cuenta desactivada', () => {
+  it('pierde el acceso, y lo recupera al reactivarla', async () => {
+    await env.withSecurityRulesDisabled((context) =>
+      updateDoc(doc(context.firestore(), 'users', EMPLOYEE), { disabled: true })
+    );
+    await assertFails(getDoc(doc(db(EMPLOYEE), 'catalog', 'tree')));
+    await assertSucceeds(getDoc(doc(db(EMPLOYEE), 'users', EMPLOYEE)));
+    await assertSucceeds(updateDoc(doc(db(ADMIN), 'users', EMPLOYEE), { disabled: false }));
+    await assertSucceeds(getDoc(doc(db(EMPLOYEE), 'catalog', 'tree')));
+  });
+
+  it('un admin no se desactiva a sí mismo, pero sí a otro', async () => {
+    await assertFails(updateDoc(doc(db(ADMIN), 'users', ADMIN), { disabled: true }));
+    await assertSucceeds(updateDoc(doc(db(ADMIN), 'users', OTHER_ADMIN), { disabled: true }));
+  });
+});
+
+describe('funciones de admin', () => {
+  it('solo un admin registra ajustes y anulaciones', async () => {
+    const adjustment = { action: 'ajuste', stockBefore: 10, stockAfter: 7, quantity: 3 };
+    await assertFails(
+      addDoc(collection(db(EMPLOYEE), 'movements'), movement(EMPLOYEE, adjustment))
+    );
+    await assertFails(
+      addDoc(collection(db(EMPLOYEE), 'movements'), movement(EMPLOYEE, { action: 'anulacion' }))
+    );
+    await assertSucceeds(addDoc(collection(db(ADMIN), 'movements'), movement(ADMIN, adjustment)));
+    await assertSucceeds(
+      setDoc(doc(db(ADMIN), 'movements', 'anulacion_x'), movement(ADMIN, { action: 'anulacion' }))
+    );
+  });
+
+  it('solo un admin define mínimo y código; el empleado sigue moviendo stock', async () => {
+    const ref = (uid) => doc(db(uid), 'stock', 'con-minimo');
+    await assertFails(setDoc(ref(EMPLOYEE), { path: PATH, stock: 1, minStock: 3 }));
+    await assertSucceeds(setDoc(ref(ADMIN), { path: PATH, stock: 1, minStock: 3, code: '4504' }));
+    await assertFails(updateDoc(ref(EMPLOYEE), { minStock: 9 }));
+    await assertFails(updateDoc(ref(EMPLOYEE), { code: 'otro' }));
+    await assertSucceeds(setDoc(ref(EMPLOYEE), { path: PATH, stock: 4 }, { merge: true }));
+    await assertFails(updateDoc(ref(ADMIN), { minStock: -1 }));
+  });
+
+  it('todos ven las obras y solo un admin las edita', async () => {
+    await assertSucceeds(setDoc(doc(db(ADMIN), 'obras', 'o1'), { nombre: 'Obra', activa: true }));
+    await assertSucceeds(getDocs(collection(db(EMPLOYEE), 'obras')));
+    await assertFails(updateDoc(doc(db(EMPLOYEE), 'obras', 'o1'), { activa: false }));
+    await assertFails(getDocs(collection(db(STRANGER), 'obras')));
+  });
+
+  it('guarda obra y unidad en pedidos y movimientos', async () => {
+    await assertSucceeds(
+      addDoc(collection(db(EMPLOYEE), 'orders'), {
+        userId: EMPLOYEE,
+        userName: 'Nombre',
+        items: [{ path: PATH, name: 'Rojo', quantity: 2, unit: 'metro' }],
+        notes: '',
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        obraId: 'o1',
+        nombreObra: 'Obra',
+      })
+    );
+    await assertSucceeds(
+      addDoc(
+        collection(db(EMPLOYEE), 'movements'),
+        movement(EMPLOYEE, { obraId: 'o1', nombreObra: 'Obra' })
+      )
+    );
+  });
+
+  it('un empleado consulta el historial propio de un ítem', async () => {
+    await assertSucceeds(
+      getDocs(
+        query(
+          collection(db(EMPLOYEE), 'movements'),
+          where('path', '==', PATH),
+          where('userId', '==', EMPLOYEE)
+        )
+      )
+    );
+    await assertFails(getDocs(query(collection(db(EMPLOYEE), 'movements'), where('path', '==', PATH))));
+  });
+});
+
 describe('admin', () => {
   it('edita el catálogo', async () => {
     await assertSucceeds(setDoc(doc(db(ADMIN), 'catalog', 'tree'), { Cables: { Unipolar: {} } }));

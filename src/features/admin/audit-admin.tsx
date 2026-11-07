@@ -2,7 +2,7 @@ import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestor
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { ScrollText } from '@/components/ui/icons';
+import { CircleAlert, ScrollText } from '@/components/ui/icons';
 import {
   AppText,
   Card,
@@ -30,6 +30,7 @@ interface AuditEntry {
 export function AuditAdmin() {
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const source = query(
@@ -41,16 +42,27 @@ export function AuditAdmin() {
       source,
       (snapshot) => {
         setEntries(snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() }) as AuditEntry));
+        setFailed(false);
         setLoading(false);
       },
       (error) => {
         console.error('Error loading audit log:', error);
+        setFailed(true);
         setLoading(false);
       }
     );
   }, []);
 
   if (loading) return <Loading label="Cargando auditoría" />;
+  if (failed) {
+    return (
+      <EmptyState
+        icon={CircleAlert}
+        title="No se pudo cargar la auditoría"
+        message="Revisá la conexión y volvé a entrar."
+      />
+    );
+  }
 
   return (
     <>

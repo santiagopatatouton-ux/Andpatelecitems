@@ -1,10 +1,11 @@
+import { useRouter } from 'expo-router';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useContentFrame, Screen } from '@/components/layout/screen';
 import { useFeedback } from '@/components/ui/feedback';
-import { Check, ClipboardList, X } from '@/components/ui/icons';
+import { Check, CircleAlert, ClipboardList, Copy, X } from '@/components/ui/icons';
 import {
   AppText,
   Badge,
@@ -17,6 +18,8 @@ import {
   Loading,
 } from '@/components/ui/primitives';
 import { useAuth } from '@/context/auth-context';
+import { useCart } from '@/context/cart-context';
+import { useCatalog } from '@/context/catalog-context';
 import { db } from '@/lib/firebase';
 import {
   approveOrder,
@@ -27,6 +30,8 @@ import {
 } from '@/services/orders';
 import { colors, spacing, type Tone } from '@/theme/tokens';
 import { formatDateTime, formatNumber, toMillis } from '@/utils/format';
+import { pathToDocId } from '@/utils/paths';
+import { getUnit } from '@/utils/units';
 
 type StatusFilter = 'all' | Order['status'];
 
@@ -44,6 +49,9 @@ const STATUS: Record<Order['status'], { label: string; tone: Tone }> = {
 };
 
 function OrderCard({ order }: { order: Order }) {
+  const router = useRouter();
+  const { items: catalogItems, stockById } = useCatalog();
+  const { addItem } = useCart();
   const { isAdmin, userProfile } = useAuth();
   const { toast, confirm } = useFeedback();
   const [processing, setProcessing] = useState(false);
@@ -81,6 +89,21 @@ function OrderCard({ order }: { order: Order }) {
     }
   };
 
+  /** Vuelve a cargar el pedido en el carrito, salvo lo que ya no está en el catálogo. */
+  const handleRepeat = () => {
+    const available = (order.items ?? []).filter((item) =>
+      catalogItems.some((entry) => entry.id === pathToDocId(item.path))
+    );
+    available.forEach((item) => addItem({ ...item }));
+    const missing = (order.items ?? []).length - available.length;
+    if (!available.length) {
+      toast('Ningún ítem de este pedido sigue en el catálogo.', 'warning');
+      return;
+    }
+    if (missing) toast(`${missing} ítem(s) ya no están en el catálogo y quedaron afuera.`, 'warning');
+    router.replace('/cart');
+  };
+
   const handleReject = async () => {
     if (!userProfile) return;
     setProcessing(true);
@@ -115,7 +138,9 @@ function OrderCard({ order }: { order: Order }) {
         {(order.items ?? []).map((item, index) => (
           <View key={index} style={styles.item}>
             <AppText variant="bodyStrong" style={styles.itemQuantity} tabular>
-              {formatNumber(item.quantity)}
+              {`${formatNumber(item.quantity)} ${
+                getUnit(item.unit ?? stockById[pathToDocId(item.path)]?.unitOfMeasure).short
+              }`}
             </AppText>
             <View style={styles.flex}>
               <AppText>{item.name}</AppText>
@@ -126,6 +151,12 @@ function OrderCard({ order }: { order: Order }) {
           </View>
         ))}
       </View>
+
+      {order.nombreObra ? (
+        <AppText variant="small" color={colors.textMuted}>
+          {`Obra: ${order.nombreObra}`}
+        </AppText>
+      ) : null}
 
       {order.notes ? (
         <AppText variant="small" color={colors.textMuted}>
@@ -165,6 +196,12 @@ function OrderCard({ order }: { order: Order }) {
           </View>
         )
       )}
+
+      {order.status !== 'pending' && (
+        <View style={styles.actions}>
+          <Button label="Repetir pedido" variant="secondary" icon={Copy} onPress={handleRepeat} />
+        </View>
+      )}
     </Card>
   );
 }
@@ -175,6 +212,7 @@ export default function OrdersScreen() {
   const uid = userProfile?.uid;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [filter, setFilter] = useState<StatusFilter>('pending');
 
   useEffect(() => {
@@ -188,10 +226,12 @@ export default function OrdersScreen() {
         const next = snapshot.docs.map((order) => ({ id: order.id, ...order.data() }) as Order);
         next.sort((a, b) => toMillis(b.createdAt) - toMillis(a.createdAt));
         setOrders(next);
+        setFailed(false);
         setLoading(false);
       },
       (error) => {
         console.error('Error loading orders:', error);
+        setFailed(true);
         setLoading(false);
       }
     );
@@ -220,6 +260,12 @@ export default function OrdersScreen() {
 
       {loading ? (
         <Loading label="Cargando pedidos" />
+      ) : failed ? (
+        <EmptyState
+          icon={CircleAlert}
+          title="No se pudieron cargar los pedidos"
+          message="Revisá la conexión y volvé a entrar."
+        />
       ) : (
         <FlatList
           data={visible}
@@ -247,7 +293,7 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   items: { gap: spacing.sm },
   item: { flexDirection: 'row', gap: spacing.md },
-  itemQuantity: { minWidth: 40, textAlign: 'right' },
+  itemQuantity: { minWidth: 64, textAlign: 'right' },
   reject: { gap: spacing.md },
   actions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: spacing.sm },
 });

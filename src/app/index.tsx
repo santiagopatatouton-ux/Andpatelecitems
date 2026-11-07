@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -15,13 +15,15 @@ import {
   Field,
   IconButton,
   Loading,
+  SectionTitle,
 } from '@/components/ui/primitives';
 import { useAuth } from '@/context/auth-context';
 import { useCatalog, type CatalogItem } from '@/context/catalog-context';
 import { colors, spacing } from '@/theme/tokens';
 import { countItems, flattenTree, getChildren, getNodeAtPath } from '@/utils/catalog-tree';
-import { STOCK_LEVEL_LABELS, type StockLevel } from '@/utils/format';
+import { matchesSearch, STOCK_LEVEL_LABELS, type StockLevel } from '@/utils/format';
 import { pathToDocId } from '@/utils/paths';
+import { loadRecentItems } from '@/utils/recent-items';
 
 const LEVELS: StockLevel[] = ['available', 'low', 'out'];
 const GRID_COLUMNS = 3;
@@ -58,27 +60,40 @@ export default function CatalogScreen() {
   const [path, setPath] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<StockLevel | null>(null);
+  const [recent, setRecent] = useState<string[][]>([]);
+  const uid = userProfile?.uid;
 
   const itemsById = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
 
-  useEffect(() => {
-    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (levelFilter) setLevelFilter(null);
-      else if (search) setSearch('');
-      else if (path.length) setPath(path.slice(0, -1));
-      else return false;
-      return true;
-    });
-    return () => subscription.remove();
-  }, [levelFilter, search, path]);
+  // Solo con el catálogo a la vista: si no, el botón atrás del ítem movería esta pantalla.
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        if (levelFilter) setLevelFilter(null);
+        else if (search) setSearch('');
+        else if (path.length) setPath(path.slice(0, -1));
+        else return false;
+        return true;
+      });
+      return () => subscription.remove();
+    }, [levelFilter, search, path])
+  );
 
-  const query = search.trim().toLowerCase();
+  // Al volver de un ítem la lista ya incluye el que se acaba de abrir.
+  useFocusEffect(
+    useCallback(() => {
+      if (uid) loadRecentItems(uid).then(setRecent);
+    }, [uid])
+  );
+
+  const query = search.trim();
 
   const results = useMemo(() => {
     if (!query || !tree) return { folders: [], items: [] };
-    const matches = flattenTree(tree).filter((entry) =>
-      entry.path.join(' ').toLowerCase().includes(query)
-    );
+    const matches = flattenTree(tree).filter((entry) => {
+      const code = itemsById.get(pathToDocId(entry.path))?.code ?? '';
+      return matchesSearch(`${entry.path.join(' ')} ${code}`, query);
+    });
     return {
       folders: matches.filter((entry) => entry.type === 'category'),
       items: matches.flatMap((entry) => {
@@ -102,6 +117,8 @@ export default function CatalogScreen() {
   const folderItems = children.type === 'items'
     ? children.names.flatMap((name) => itemsById.get(pathToDocId([...path, name])) ?? [])
     : [];
+
+  const recentItems = recent.flatMap((item) => itemsById.get(pathToDocId(item)) ?? []);
 
   const folderCard = (name: string) => (
     <CategoryCard
@@ -209,7 +226,7 @@ export default function CatalogScreen() {
         leading={Search}
         value={search}
         onChangeText={setSearch}
-        placeholder="Ítem, carpeta o medida"
+        placeholder="Ítem, carpeta, medida o código"
         autoCorrect={false}
         trailing={
           search ? (
@@ -240,6 +257,13 @@ export default function CatalogScreen() {
 
       {!query && !levelFilter && path.length > 0 && (
         <Breadcrumbs root="Catálogo" path={path} onNavigate={setPath} />
+      )}
+
+      {!query && !levelFilter && path.length === 0 && recentItems.length > 0 && (
+        <View style={styles.resultGroup}>
+          <SectionTitle title="Usados recientemente" />
+          <ItemList items={recentItems} showPath />
+        </View>
       )}
 
       {renderContent()}

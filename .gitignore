@@ -45,3 +45,6 @@ example
 
 # firebase emulators
 *-debug.log
+
+# Respaldos locales de datos de producción
+backups/

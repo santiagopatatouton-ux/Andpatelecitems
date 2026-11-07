@@ -24,6 +24,7 @@ export function useFavorites() {
   const uid = userProfile?.uid;
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!uid) return;
@@ -33,10 +34,12 @@ export function useFavorites() {
         const next = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Favorite);
         next.sort((a, b) => toMillis(b.addedAt) - toMillis(a.addedAt));
         setFavorites(next);
+        setFailed(false);
         setLoading(false);
       },
       (error) => {
         console.error('Error loading favorites:', error);
+        setFailed(true);
         setLoading(false);
       }
     );
@@ -62,5 +65,5 @@ export function useFavorites() {
     [uid]
   );
 
-  return { favorites, loading, addFavorite, removeFavorite };
+  return { favorites, loading, failed, addFavorite, removeFavorite };
 }

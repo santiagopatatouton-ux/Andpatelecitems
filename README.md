@@ -53,3 +53,6 @@ npx firebase-tools deploy --only firestore:rules --project andpatelecitems
 - `xlsx` se instala desde `vendor/`: la versión de npm tiene vulnerabilidades sin parche.
 - Las imágenes de ítems están apagadas porque Firebase Storage no está activado. Ver `src/services/images.ts`.
 - El id de cada documento de stock sale de la ruta del ítem. Renombrar desde Administración mueve el stock.
+- Las etiquetas QR apuntan a `andpatelecitems.web.app`. Si cambia el dominio, hay que reimprimirlas.
+- Desactivar un usuario conserva su cuenta y su historial. Las reglas le cortan todo el acceso.
+- Los ajustes por conteo y las anulaciones son movimientos: el historial no se edita ni se borra.

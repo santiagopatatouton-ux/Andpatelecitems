@@ -118,7 +118,7 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
 
       <Modal
         transparent
-        animationType="fade"
+        animationType="none"
         visible={dialog !== null}
         onRequestClose={() => closeDialog(false)}
       >

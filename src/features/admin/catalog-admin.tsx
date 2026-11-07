@@ -1,6 +1,6 @@
-import * as DocumentPicker from 'expo-document-picker';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { useFeedback } from '@/components/ui/feedback';
@@ -12,6 +12,7 @@ import {
   Folder,
   Package,
   Pencil,
+  QrCode,
   Trash2,
   Upload,
 } from '@/components/ui/icons';
@@ -31,6 +32,7 @@ import {
 } from '@/components/ui/primitives';
 import { useAuth } from '@/context/auth-context';
 import { useCatalog } from '@/context/catalog-context';
+import { countPendingOrdersUnder } from '@/services/orders';
 import {
   addCatalogEntries,
   cloneCatalogFolder,
@@ -51,11 +53,12 @@ import {
   type EntryKind,
 } from '@/utils/catalog-tree';
 import { parseCatalogExcel, type ImportResult } from '@/utils/import-catalog';
+import { pickSpreadsheet } from '@/utils/pick-spreadsheet';
 
 const PRESETS = [
   { label: 'Amperajes', value: '10, 16, 25, 32, 40' },
   { label: 'Medidas de caños', value: '3/4, 100, 110, 112, 200' },
-  { label: 'Colores de cable', value: 'Rojo, Celeste, Marron, Negro, Tierra, Blanco' },
+  { label: 'Colores de cable', value: 'Rojo, Celeste, Marrón, Negro, Tierra, Blanco' },
   { label: 'Fases', value: 'Bifasicos, Trifasicos' },
   { label: 'Calibres', value: '1mm; 1,5mm; 2,5mm; 4mm; 6mm; 10mm; 16mm' },
 ];
@@ -66,8 +69,9 @@ const KIND_OPTIONS: { value: EntryKind; label: string; icon: typeof Folder }[] =
 ];
 
 export function CatalogAdmin() {
+  const router = useRouter();
   const { userProfile } = useAuth();
-  const { tree, loading } = useCatalog();
+  const { tree, loading, error } = useCatalog();
   const { toast, confirm } = useFeedback();
 
   const [path, setPath] = useState<string[]>([]);
@@ -80,13 +84,29 @@ export function CatalogAdmin() {
   const [importing, setImporting] = useState(false);
   const [preview, setPreview] = useState<ImportResult | null>(null);
 
-  if (loading || !tree) return <Loading label="Cargando catálogo" />;
+  if (loading) return <Loading label="Cargando catálogo" />;
+  if (error || !tree) {
+    return (
+      <EmptyState
+        icon={CircleAlert}
+        title="No se pudo cargar el catálogo"
+        message="Revisá la conexión y volvé a entrar."
+      />
+    );
+  }
 
   const current = getNodeAtPath(tree, path);
   const children = getChildren(current);
   const isRoot = path.length === 0;
   const location = path.join(' › ') || 'Raíz';
-  const entryKind: EntryKind = isRoot ? 'subcategory' : kind;
+  // Una carpeta no mezcla ítems y subcarpetas: solo la vacía deja elegir.
+  const fixedKind: EntryKind | null =
+    isRoot || children.type === 'categories'
+      ? 'subcategory'
+      : children.type === 'items'
+        ? 'item'
+        : null;
+  const entryKind: EntryKind = fixedKind ?? kind;
 
   const audit = (action: AuditAction, target: string, details: string) =>
     logAuditEvent({
@@ -131,6 +151,18 @@ export function CatalogAdmin() {
     });
   };
 
+  /** Renombrar o borrar deja sin stock a los pedidos pendientes que usan esa ruta. */
+  const confirmPendingOrders = async (name: string) => {
+    const pending = await countPendingOrdersUnder([...path, name]);
+    if (!pending) return true;
+    return confirm({
+      title: 'Hay pedidos pendientes',
+      message: `${pending === 1 ? '1 pedido pendiente usa' : `${pending} pedidos pendientes usan`} "${name}". Después no se van a poder aprobar: conviene resolverlos antes.`,
+      confirmLabel: 'Continuar igual',
+      destructive: true,
+    });
+  };
+
   const handleRename = (oldName: string) => {
     const trimmed = newName.trim();
     if (!trimmed || trimmed === oldName) {
@@ -138,6 +170,7 @@ export function CatalogAdmin() {
       return;
     }
     return run(async () => {
+      if (!(await confirmPendingOrders(oldName))) return;
       await renameCatalogEntry(path, oldName, trimmed);
       await audit('rename_item', `${oldName} → ${trimmed}`, `Ruta: ${location}`);
       setEditing(null);
@@ -162,6 +195,7 @@ export function CatalogAdmin() {
     if (!accepted) return;
 
     await run(async () => {
+      if (!(await confirmPendingOrders(name))) return;
       await deleteCatalogEntry(path, name);
       await audit(
         children.type === 'items' ? 'delete_item' : 'delete_category',
@@ -172,38 +206,27 @@ export function CatalogAdmin() {
     });
   };
 
-  const handleClone = (sourcePath: string[]) =>
-    run(async () => {
+  const handleClone = async (sourcePath: string[]) => {
+    const copied = countItems(getNodeAtPath(tree, sourcePath));
+    const accepted = await confirm({
+      title: 'Copiar carpeta',
+      message: `Se van a copiar ${copied} ${copied === 1 ? 'ítem' : 'ítems'} de ${sourcePath.join(' › ')} a ${location}. El stock no se copia.`,
+      confirmLabel: 'Copiar',
+    });
+    if (!accepted) return;
+    await run(async () => {
       await cloneCatalogFolder(path, sourcePath);
       await audit('bulk_import', location, `Estructura copiada de ${sourcePath.join(' › ')}`);
       setShowClone(false);
       toast('Contenido copiado.');
     });
+  };
 
   const handlePickFile = async () => {
+    setImporting(true);
     try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: [
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-excel',
-          'text/csv',
-        ],
-        copyToCacheDirectory: true,
-      });
-      if (result.canceled) return;
-
-      setImporting(true);
-      const { uri } = result.assets[0];
-      if (Platform.OS === 'web') {
-        const buffer = await (await fetch(uri)).arrayBuffer();
-        setPreview(parseCatalogExcel(buffer));
-      } else {
-        const FileSystem = await import('expo-file-system/legacy');
-        const base64 = await FileSystem.readAsStringAsync(uri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        setPreview(parseCatalogExcel(base64, true));
-      }
+      const picked = await pickSpreadsheet();
+      if (picked) setPreview(parseCatalogExcel(picked.data, picked.isBase64));
     } catch (error) {
       console.error('Error reading file:', error);
       toast('No se pudo leer el archivo.', 'danger');
@@ -230,17 +253,24 @@ export function CatalogAdmin() {
     });
   };
 
-  const handleSeed = () =>
-    run(async () => {
+  const handleSeed = async () => {
+    const accepted = await confirm({
+      title: 'Cargar catálogo base',
+      message: 'Se va a crear el catálogo inicial. Solo funciona si el catálogo está vacío.',
+      confirmLabel: 'Cargar',
+    });
+    if (!accepted) return;
+    await run(async () => {
       await seedBaseCatalog();
       await audit('bulk_import', 'Catálogo', 'Carga del catálogo base');
       toast('Catálogo base cargado.');
     });
+  };
 
   const cloneSources = flattenTree(tree).filter(
     (entry) =>
       entry.type === 'category' &&
-      entry.path.join('/') !== path.join('/') &&
+      !entry.path.every((name, index) => path[index] === name) &&
       getChildren(getNodeAtPath(tree, entry.path)).type !== 'empty'
   );
 
@@ -296,6 +326,7 @@ export function CatalogAdmin() {
                   <View style={styles.row}>
                     <Pressable
                       accessibilityRole={isFolder ? 'button' : undefined}
+                      accessibilityLabel={isFolder ? `Abrir ${name}` : undefined}
                       disabled={!isFolder}
                       onPress={() => setPath(entryPath)}
                       style={styles.rowMain}
@@ -337,15 +368,28 @@ export function CatalogAdmin() {
         </Card>
       )}
 
+      {countItems(current) > 0 && (
+        <View style={styles.actions}>
+          <Button
+            label="Etiquetas QR"
+            variant="secondary"
+            icon={QrCode}
+            onPress={() =>
+              router.push({ pathname: '/labels', params: { path: JSON.stringify(path) } } as never)
+            }
+          />
+        </View>
+      )}
+
       <Card style={styles.section}>
         <SectionTitle title="Agregar" hint={`En ${location}`} />
-        {!isRoot && <Segmented options={KIND_OPTIONS} value={kind} onChange={setKind} />}
+        {!fixedKind && <Segmented options={KIND_OPTIONS} value={kind} onChange={setKind} />}
         <Field
           label="Nombres"
           value={names}
           onChangeText={setNames}
           placeholder="Separados por coma, punto y coma o renglón"
-          hint="Para nombres con coma, como 1,5mm, separá con punto y coma."
+          hint="Dejá un espacio después de cada coma. 1,5mm queda como un solo nombre."
           multiline
         />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.presets}>

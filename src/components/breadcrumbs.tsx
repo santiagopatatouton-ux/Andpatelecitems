@@ -28,7 +28,7 @@ export function Breadcrumbs({
               accessibilityRole="link"
               disabled={last}
               onPress={() => onNavigate(path.slice(0, index))}
-              hitSlop={8}
+              style={styles.link}
             >
               <AppText variant="smallStrong" color={last ? colors.text : colors.textMuted}>
                 {crumb}
@@ -42,6 +42,7 @@ export function Breadcrumbs({
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', rowGap: spacing.xs },
+  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' },
+  link: { minHeight: 44, justifyContent: 'center' },
   crumb: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginRight: spacing.xs },
 });

@@ -5,9 +5,9 @@ export const LOW_STOCK_THRESHOLD = 5;
 
 export type StockLevel = 'available' | 'low' | 'out';
 
-export function stockLevel(stock: number): StockLevel {
+export function stockLevel(stock: number, minStock: number = LOW_STOCK_THRESHOLD): StockLevel {
   if (stock <= 0) return 'out';
-  return stock <= LOW_STOCK_THRESHOLD ? 'low' : 'available';
+  return stock <= minStock ? 'low' : 'available';
 }
 
 export const STOCK_LEVEL_LABELS: Record<StockLevel, string> = {
@@ -88,6 +88,51 @@ export function parseNumber(input: string): number | null {
       : text;
   if (!/^\d*\.?\d+$/.test(normalized)) return null;
   return Number(normalized);
+}
+
+/** Fecha escrita a mano como dd/mm/aaaa. Devuelve null si no existe. */
+export function parseDateInput(input: string): Date | null {
+  const match = /^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/.exec(input.trim());
+  if (!match) return null;
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]) + (match[3].length === 2 ? 2000 : 0);
+  const date = new Date(year, month - 1, day);
+  return date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+}
+
+export interface DateRange {
+  from: Date | null;
+  to: Date | null;
+}
+
+/** Mes calendario: 0 es el actual y -1 el anterior. */
+export function monthRange(offset = 0, now = new Date()): DateRange {
+  return {
+    from: new Date(now.getFullYear(), now.getMonth() + offset, 1),
+    to: new Date(now.getFullYear(), now.getMonth() + offset + 1, 0),
+  };
+}
+
+/** Incluye el día completo de "to". */
+export function isInRange(time: number, { from, to }: DateRange): boolean {
+  if (from && time < from.getTime()) return false;
+  if (to && time >= new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1).getTime()) {
+    return false;
+  }
+  return true;
+}
+
+const normalizeText = (text: string) =>
+  text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+/** Búsqueda por palabras sueltas, sin distinguir tildes ni mayúsculas. */
+export function matchesSearch(text: string, search: string): boolean {
+  const target = normalizeText(text);
+  return normalizeText(search)
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((word) => target.includes(word));
 }
 
 export function initials(name: string): string {

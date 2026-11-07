@@ -34,12 +34,32 @@ export function getNodeAtPath(tree: CatalogTree, path: string[]): CatalogNode | 
   return node;
 }
 
+/** Valor del número con que empieza un nombre: 1,5mm, 3/4" o 1 1/2". */
+function leadingNumber(name: string): number | null {
+  const mixed = /^(\d+)\s+(\d+)\/(\d+)/.exec(name);
+  if (mixed) return Number(mixed[1]) + Number(mixed[2]) / Number(mixed[3]);
+  const fraction = /^(\d+)\/(\d+)/.exec(name);
+  if (fraction) return Number(fraction[1]) / Number(fraction[2]);
+  const decimal = /^\d+(?:,\d+)?/.exec(name);
+  return decimal ? Number(decimal[0].replace(',', '.')) : null;
+}
+
+/** Orden natural de medidas y nombres: 1mm, 1,5mm, 2,5mm, 10mm. */
+export function compareNames(a: string, b: string): number {
+  const first = leadingNumber(a);
+  const second = leadingNumber(b);
+  if (first !== null && second !== null && first !== second) return first - second;
+  if (first !== null && second === null) return -1;
+  if (first === null && second !== null) return 1;
+  return a.localeCompare(b, 'es', { numeric: true });
+}
+
 export function getChildren(node: CatalogNode | undefined | null): Children {
   if (Array.isArray(node)) {
-    return { type: node.length ? 'items' : 'empty', names: node };
+    return { type: node.length ? 'items' : 'empty', names: [...node].sort(compareNames) };
   }
   if (isFolder(node)) {
-    const names = Object.keys(node).sort((a, b) => a.localeCompare(b, 'es', { numeric: true }));
+    const names = Object.keys(node).sort(compareNames);
     return { type: names.length ? 'categories' : 'empty', names };
   }
   return { type: 'empty', names: [] };
@@ -47,13 +67,17 @@ export function getChildren(node: CatalogNode | undefined | null): Children {
 
 export function flattenTree(node: CatalogNode | undefined, base: string[] = []): CatalogEntry[] {
   if (Array.isArray(node)) {
-    return node.map((name) => ({ name, path: [...base, name], type: 'item' }));
+    return [...node]
+      .sort(compareNames)
+      .map((name) => ({ name, path: [...base, name], type: 'item' }));
   }
   if (!isFolder(node)) return [];
-  return Object.keys(node).flatMap((name) => [
-    { name, path: [...base, name], type: 'category' as const },
-    ...flattenTree(node[name], [...base, name]),
-  ]);
+  return Object.keys(node)
+    .sort(compareNames)
+    .flatMap((name) => [
+      { name, path: [...base, name], type: 'category' as const },
+      ...flattenTree(node[name], [...base, name]),
+    ]);
 }
 
 export function getItems(tree: CatalogTree): CatalogEntry[] {
@@ -69,9 +93,12 @@ export function isItemPath(tree: CatalogTree, path: string[]): boolean {
   return Array.isArray(parent) && parent.includes(path[path.length - 1]);
 }
 
-/** Nombres cargados a mano: separados por coma, punto y coma o salto de línea. */
+/**
+ * Nombres cargados a mano: separados por coma, punto y coma o salto de línea.
+ * Una coma seguida de un dígito es decimal: 1,5mm queda como un solo nombre.
+ */
 export function parseNames(input: string): string[] {
-  return [...new Set(input.split(/[\n,;]+/).map((name) => name.trim()).filter(Boolean))];
+  return [...new Set(input.split(/[\n;]+|,(?!\d)/).map((name) => name.trim()).filter(Boolean))];
 }
 
 function cloneTree(tree: CatalogTree): CatalogTree {
@@ -122,8 +149,9 @@ export function addEntries(
     if (children.type === 'categories') {
       throw new CatalogError('Esta carpeta tiene subcarpetas: los ítems van dentro de ellas.');
     }
-    assertNoIdCollision(children.names, names, path);
-    parent[key] = [...new Set([...children.names, ...names])];
+    const existing = Array.isArray(target) ? target : [];
+    assertNoIdCollision(existing, names, path);
+    parent[key] = [...new Set([...existing, ...names])];
     return tree;
   }
 
@@ -212,6 +240,10 @@ export interface MergeResult {
   conflicts: string[];
 }
 
+/** Nombres distintos que irían al mismo documento de stock, como "3/4" y "3_4". */
+const namesCollide = (names: string[]) =>
+  new Set(names.map((name) => pathToDocId([name]))).size < new Set(names).size;
+
 /** Fusiona sin borrar nada. Una carpeta vacía adopta la forma de lo importado. */
 export function mergeTrees(existing: CatalogTree, imported: CatalogTree): MergeResult {
   const conflicts: string[] = [];
@@ -224,12 +256,18 @@ export function mergeTrees(existing: CatalogTree, imported: CatalogTree): MergeR
       const currentType = getChildren(current).type;
       const incomingType = getChildren(value).type;
 
-      if (current === undefined || currentType === 'empty') {
+      if (current === undefined && namesCollide([...Object.keys(result), key])) {
+        conflicts.push(path.join(' › '));
+      } else if (Array.isArray(value) && namesCollide(value)) {
+        conflicts.push(path.join(' › '));
+      } else if (current === undefined || currentType === 'empty') {
         result[key] = value;
       } else if (incomingType === 'empty') {
         continue;
       } else if (Array.isArray(current) && Array.isArray(value)) {
-        result[key] = [...new Set([...current, ...value])];
+        const merged = [...new Set([...current, ...value])];
+        if (namesCollide(merged)) conflicts.push(path.join(' › '));
+        else result[key] = merged;
       } else if (isFolder(current) && isFolder(value)) {
         result[key] = mergeFolder(current, value, path);
       } else {

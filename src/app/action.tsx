@@ -1,10 +1,12 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
+import { ItemDetails, ItemHistory, SupplierSuggestions } from '@/components/item-extras';
 import { useIsWide } from '@/components/layout/app-shell';
 import { Screen } from '@/components/layout/screen';
+import { ObraPicker } from '@/components/obra-picker';
 import { useFeedback } from '@/components/ui/feedback';
 import {
   ArrowDownToLine,
@@ -36,6 +38,7 @@ import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
 import { useCatalog } from '@/context/catalog-context';
 import { useFavorites } from '@/hooks/use-favorites';
+import type { Obra } from '@/hooks/use-obras';
 import { IMAGE_UPLOAD_ENABLED, removeItemImage, uploadItemImage } from '@/services/images';
 import {
   applyMovement,
@@ -49,11 +52,13 @@ import {
   formatMoney,
   formatNumber,
   parseNumber,
+  roundQuantity,
   stockLevel,
   STOCK_LEVEL_LABELS,
   STOCK_LEVEL_TONES,
 } from '@/utils/format';
 import { pathToDocId } from '@/utils/paths';
+import { rememberRecentItem } from '@/utils/recent-items';
 import { getUnit, unitLabel, UNITS } from '@/utils/units';
 
 const ACTIONS: { value: MovementAction; label: string; icon: typeof ArrowUpFromLine }[] = [
@@ -67,6 +72,8 @@ const CONFIRM_LABELS: Record<MovementAction, string> = {
   devolver: 'Confirmar devolución',
   compra: 'Registrar compra',
 };
+
+const QUICK_AMOUNTS = [5, 10, 50];
 
 const SUCCESS_VERBS: Record<MovementAction, string> = {
   retirar: 'Retirado',
@@ -87,7 +94,7 @@ export default function ItemScreen() {
   const params = useLocalSearchParams<{ path: string }>();
   const path = useMemo(() => parsePath(params.path), [params.path]);
   const { userProfile } = useAuth();
-  const { tree, loading, stockById } = useCatalog();
+  const { tree, loading, error, stockById } = useCatalog();
   const { addItem } = useCart();
   const { favorites, addFavorite, removeFavorite } = useFavorites();
   const { toast, confirm } = useFeedback();
@@ -98,6 +105,7 @@ export default function ItemScreen() {
   const [notes, setNotes] = useState('');
   const [price, setPrice] = useState('');
   const [supplier, setSupplier] = useState('');
+  const [obra, setObra] = useState<Obra | null>(null);
   const [quantityError, setQuantityError] = useState('');
   const [priceError, setPriceError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -108,13 +116,31 @@ export default function ItemScreen() {
   const info = stockById[pathToDocId(path)];
   const stock = info?.stock ?? 0;
   const unit = getUnit(info?.unitOfMeasure);
-  const level = stockLevel(stock);
+  const level = stockLevel(stock, info?.minStock);
   const favorite = favorites.find((item) => item.path.join('\u0000') === path.join('\u0000'));
+  const exists = !!tree && path.length > 0 && isItemPath(tree, path);
+  const uid = userProfile?.uid;
+
+  useEffect(() => {
+    if (uid && exists) rememberRecentItem(uid, path);
+  }, [uid, exists, path]);
 
   if (loading) {
     return (
       <Screen title={name} backTo="/">
         <Loading label="Cargando ítem" />
+      </Screen>
+    );
+  }
+
+  if (error) {
+    return (
+      <Screen title={name} backTo="/">
+        <EmptyState
+          icon={CircleAlert}
+          title="No se pudo cargar el ítem"
+          message="Revisá la conexión y volvé a entrar."
+        />
       </Screen>
     );
   }
@@ -168,6 +194,7 @@ export default function ItemScreen() {
         notes: notes.trim(),
         unitCost,
         supplier: action === 'compra' ? supplier.trim() || null : null,
+        obra: action === 'retirar' ? obra : null,
         userId: userProfile.uid,
         userName: userProfile.displayName,
       });
@@ -209,6 +236,13 @@ export default function ItemScreen() {
 
   const handleChangeUnit = async (value: string) => {
     setShowUnits(false);
+    if (value === unit.value) return;
+    const accepted = await confirm({
+      title: 'Cambiar unidad',
+      message: `${name} va a pasar a contarse en ${getUnit(value).plural.toLowerCase()} para todos. La cantidad no cambia.`,
+      confirmLabel: 'Cambiar',
+    });
+    if (!accepted) return;
     try {
       await setUnitOfMeasure(path, value);
     } catch (error) {
@@ -267,8 +301,21 @@ export default function ItemScreen() {
     }
   };
 
+  // Abajo del formulario en el teléfono: registrar un movimiento es lo más usado.
+  const extras = (
+    <>
+      <ItemDetails
+        key={`${info?.code ?? ''}-${info?.minStock ?? ''}`}
+        path={path}
+        code={info?.code}
+        minStock={info?.minStock}
+      />
+      <ItemHistory path={path} />
+    </>
+  );
+
   const summary = (
-    <View style={styles.column}>
+    <View style={[styles.column, wide && styles.columnWide]}>
       <Card style={styles.stockCard}>
         <AppText variant="smallStrong" color={colors.textMuted}>
           Stock actual
@@ -345,11 +392,13 @@ export default function ItemScreen() {
           )}
         </Card>
       )}
+
+      {wide && extras}
     </View>
   );
 
   const form = (
-    <Card style={[styles.column, styles.form]}>
+    <Card style={[styles.column, wide && styles.columnWide]}>
       <SectionTitle title="Registrar movimiento" />
       <Segmented options={ACTIONS} value={action} onChange={setAction} />
 
@@ -363,6 +412,19 @@ export default function ItemScreen() {
             setQuantityError('');
           }}
         />
+        <View style={styles.quickAmounts}>
+          {QUICK_AMOUNTS.map((amount) => (
+            <Chip
+              key={amount}
+              label={`+${amount}`}
+              onPress={() => {
+                const next = roundQuantity((parseNumber(quantity) ?? 0) + amount);
+                setQuantity(String(next).replace('.', ','));
+                setQuantityError('');
+              }}
+            />
+          ))}
+        </View>
         {quantityError ? (
           <AppText variant="small" color={colors.danger} accessibilityLiveRegion="polite">
             {quantityError}
@@ -370,8 +432,17 @@ export default function ItemScreen() {
         ) : null}
       </View>
 
+      {action === 'retirar' && <ObraPicker value={obra} onChange={setObra} />}
+
       {action === 'compra' && (
         <>
+          <SupplierSuggestions
+            path={path}
+            onPick={(picked) => {
+              setSupplier(picked.name);
+              if (picked.price) setPrice(String(picked.price).replace('.', ','));
+            }}
+          />
           <Field
             label={`Precio por ${unit.label.toLowerCase()} (opcional)`}
             value={price}
@@ -396,7 +467,7 @@ export default function ItemScreen() {
         label="Notas (opcional)"
         value={notes}
         onChangeText={setNotes}
-        placeholder="Obra, destino o detalle"
+        placeholder="Destino o detalle"
         multiline
       />
 
@@ -439,6 +510,7 @@ export default function ItemScreen() {
       <View style={[styles.layout, wide && styles.layoutWide]}>
         {summary}
         {form}
+        {!wide && extras}
       </View>
     </Screen>
   );
@@ -447,13 +519,14 @@ export default function ItemScreen() {
 const styles = StyleSheet.create({
   layout: { gap: spacing.lg },
   layoutWide: { flexDirection: 'row', alignItems: 'flex-start' },
-  column: { flex: 1, minWidth: 0, gap: spacing.lg },
-  form: { flexGrow: 1 },
+  column: { minWidth: 0, gap: spacing.lg },
+  columnWide: { flex: 1 },
   field: { gap: 6 },
   stockCard: { gap: spacing.sm },
   stockRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   stockNumber: { flex: 1, fontSize: 40, lineHeight: 46 },
   units: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
+  quickAmounts: { flexDirection: 'row', gap: spacing.sm },
   imageCard: { gap: spacing.md, alignItems: 'center' },
   image: { width: '100%', aspectRatio: 1, borderRadius: radius.md },
   imageActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

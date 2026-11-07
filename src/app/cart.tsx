@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { useIsWide } from '@/components/layout/app-shell';
 import { Screen } from '@/components/layout/screen';
+import { ObraPicker } from '@/components/obra-picker';
 import { useFeedback } from '@/components/ui/feedback';
 import { ShoppingCart, Trash2 } from '@/components/ui/icons';
 import {
@@ -19,6 +20,7 @@ import {
 import { useAuth } from '@/context/auth-context';
 import { useCart, type CartItem } from '@/context/cart-context';
 import { useCatalog } from '@/context/catalog-context';
+import type { Obra } from '@/hooks/use-obras';
 import { createOrder } from '@/services/orders';
 import { colors, spacing } from '@/theme/tokens';
 import { formatNumber, parseNumber } from '@/utils/format';
@@ -56,8 +58,7 @@ function CartRow({ item }: { item: CartItem }) {
           decimal={unit.decimal}
           onChange={(value) => {
             setText(value);
-            const parsed = parseNumber(value);
-            if (parsed !== null && parsed > 0) setQuantity(item.path, parsed);
+            setQuantity(item.path, parseNumber(value) ?? 0);
           }}
         />
         <IconButton
@@ -78,6 +79,7 @@ export default function CartScreen() {
   const { toast, confirm } = useFeedback();
   const wide = useIsWide();
   const [notes, setNotes] = useState('');
+  const [obra, setObra] = useState<Obra | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleClear = async () => {
@@ -92,11 +94,16 @@ export default function CartScreen() {
 
   const handleSubmit = async () => {
     if (!userProfile) return;
+    if (items.some((item) => !(item.quantity > 0))) {
+      toast('Revisá las cantidades: hay ítems sin cantidad.', 'warning');
+      return;
+    }
     setSubmitting(true);
     try {
-      await createOrder(userProfile, items, notes.trim());
+      await createOrder(userProfile, items, notes.trim(), obra);
       clear();
       setNotes('');
+      setObra(null);
       toast('Pedido enviado. Un administrador lo va a revisar.');
       router.replace('/orders');
     } catch (error) {
@@ -137,11 +144,12 @@ export default function CartScreen() {
         </Card>
 
         <Card style={[styles.submit, wide && styles.submitWide]}>
+          <ObraPicker value={obra} onChange={setObra} />
           <Field
             label="Notas del pedido (opcional)"
             value={notes}
             onChangeText={setNotes}
-            placeholder="Obra, urgencia o detalle"
+            placeholder="Urgencia o detalle"
             multiline
           />
           <Button

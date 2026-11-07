@@ -27,7 +27,17 @@ const {
   renameEntry,
   stockPathsUnder,
 } = await import('../src/utils/catalog-tree.ts');
-const { formatDateTime, parseNumber, roundQuantity, stockLevel } = await import('../src/utils/format.ts');
+const {
+  formatDateTime,
+  isInRange,
+  matchesSearch,
+  monthRange,
+  parseDateInput,
+  parseNumber,
+  roundQuantity,
+  stockLevel,
+} = await import('../src/utils/format.ts');
+const { parseCountExcel } = await import('../src/utils/import-count.ts');
 
 function workbook(rows) {
   const book = XLSX.utils.book_new();
@@ -68,11 +78,62 @@ describe('importación de Excel', () => {
     assert.match(result.errors[0], /Fila 3/);
   });
 
+  it('conserva la coma decimal de las celdas numéricas', () => {
+    assert.deepEqual(parseCatalogExcel(workbook([['C', 'I'], ['Cables', 2.5]])).tree, {
+      Cables: ['2,5'],
+    });
+  });
+
   it('convierte celdas numéricas a texto y rechaza archivos sin datos', () => {
     assert.deepEqual(parseCatalogExcel(workbook([['C', 'I'], ['Termicas', 10]])).tree, {
       Termicas: ['10'],
     });
     assert.equal(parseCatalogExcel(workbook([['Solo encabezado']])).errors.length, 1);
+  });
+});
+
+describe('importación de conteos', () => {
+  const sheet = (rows) =>
+    workbook([['Categoría', 'Ítem', 'Código', 'Stock', 'Unidad'], ...rows]);
+
+  it('lee la planilla de stock y arma las rutas', () => {
+    const { entries, errors } = parseCountExcel(
+      sheet([
+        ['Cables > Unipolar > 1mm', 'Rojo', '', 12, 'u'],
+        ['Canalizaciones', 2.5, '', '3,5', 'm'],
+      ])
+    );
+    assert.deepEqual(entries, [
+      { path: ['Cables', 'Unipolar', '1mm', 'Rojo'], counted: 12 },
+      { path: ['Canalizaciones', '2,5'], counted: 3.5 },
+    ]);
+    assert.deepEqual(errors, []);
+  });
+
+  it('ignora filas sin cantidad e informa las inválidas', () => {
+    const { entries, errors } = parseCountExcel(
+      sheet([
+        ['Cables', 'Rojo', '', '', 'u'],
+        ['Cables', 'Azul', '', 'mucho', 'u'],
+      ])
+    );
+    assert.deepEqual(entries, []);
+    assert.equal(errors.length, 1);
+    assert.match(errors[0], /Fila 3/);
+  });
+
+  it('lee tildes de un CSV en UTF-8 y en formato de Windows', () => {
+    const utf8 = new TextEncoder().encode('Categoría,Ítem,Stock\nCaños,Unión,3\n').buffer;
+    const latin = Uint8Array.from('Categoría;Ítem;Stock\nCaños;Unión;3\n', (c) =>
+      c.charCodeAt(0)
+    ).buffer;
+    for (const csv of [utf8, latin]) {
+      assert.deepEqual(parseCountExcel(csv).entries, [{ path: ['Caños', 'Unión'], counted: 3 }]);
+    }
+  });
+
+  it('rechaza una planilla sin las columnas necesarias', () => {
+    assert.equal(parseCountExcel(workbook([['A', 'B'], [1, 2]])).errors.length, 1);
   });
 });
 
@@ -87,6 +148,13 @@ describe('fusión de catálogos', () => {
       Varios: ['Cinta'],
     });
     assert.deepEqual(conflicts, []);
+  });
+
+  it('rechaza nombres que caerían en el mismo documento de stock', () => {
+    const existing = { Caños: ['3/4'] };
+    const { tree, conflicts } = mergeTrees(existing, { Caños: ['3_4'] });
+    assert.deepEqual(tree, existing);
+    assert.deepEqual(conflicts, ['Caños']);
   });
 
   it('no destruye ítems si el archivo trae carpetas en el mismo lugar', () => {
@@ -152,8 +220,8 @@ describe('edición del árbol', () => {
   it('lista las rutas de stock que cuelgan de una carpeta', () => {
     assert.deepEqual(stockPathsUnder(tree, ['Cables', 'Unipolar']), [
       ['Cables', 'Unipolar'],
-      ['Cables', 'Unipolar', 'Rojo'],
       ['Cables', 'Unipolar', 'Negro'],
+      ['Cables', 'Unipolar', 'Rojo'],
     ]);
   });
 
@@ -161,9 +229,28 @@ describe('edición del árbol', () => {
     assert.deepEqual(getChildren({ b: {}, a10: {}, a2: {} }).names, ['a2', 'a10', 'b']);
   });
 
+  it('ordena medidas por su valor, sin tocar el array guardado', () => {
+    const sizes = ['10mm', '1,5mm', '1mm', '2,5mm'];
+    assert.deepEqual(getChildren(sizes).names, ['1mm', '1,5mm', '2,5mm', '10mm']);
+    assert.deepEqual(sizes, ['10mm', '1,5mm', '1mm', '2,5mm']);
+    assert.deepEqual(getChildren(['2"', '1 1/2"', '3/4"', '1"']).names, ['3/4"', '1"', '1 1/2"', '2"']);
+    assert.deepEqual(getChildren(['4 modulos', '1 modulo', 'Tapa ciega']).names, [
+      '1 modulo',
+      '4 modulos',
+      'Tapa ciega',
+    ]);
+  });
+
+  it('no permite copiar una carpeta dentro de una de sus subcarpetas', () => {
+    const nested = { Cables: { Unipolar: { '1mm': ['Rojo'], '2mm': ['Rojo'] } } };
+    assert.throws(() => cloneInto(nested, ['Cables', 'Unipolar', '1mm'], ['Cables', 'Unipolar']), /sí misma/);
+  });
+
   it('separa nombres cargados a mano', () => {
     assert.deepEqual(parseNames('a, b;c\nd,, a'), ['a', 'b', 'c', 'd']);
     assert.deepEqual(parseNames('1mm; 2 mm'), ['1mm', '2 mm']);
+    assert.deepEqual(parseNames('1mm; 1,5mm; 2,5mm'), ['1mm', '1,5mm', '2,5mm']);
+    assert.deepEqual(parseNames('10, 16, 25'), ['10', '16', '25']);
   });
 });
 
@@ -179,6 +266,13 @@ describe('formato', () => {
     assert.equal(parseNumber('-3'), null);
   });
 
+  it('busca por palabras sueltas, sin tildes ni mayúsculas', () => {
+    assert.ok(matchesSearch('Cables Unipolar 2,5mm Marron', 'cable marrón 2,5'));
+    assert.ok(matchesSearch('Iluminacion Focos', 'iluminación'));
+    assert.ok(!matchesSearch('Cables Unipolar 2,5mm Rojo', 'cable marron'));
+    assert.ok(matchesSearch('Cualquier texto', '  '));
+  });
+
   it('evita errores de coma flotante', () => {
     assert.equal(roundQuantity(0.1 + 0.2), 0.3);
   });
@@ -187,6 +281,29 @@ describe('formato', () => {
     assert.equal(stockLevel(0), 'out');
     assert.equal(stockLevel(5), 'low');
     assert.equal(stockLevel(6), 'available');
+  });
+
+  it('usa el mínimo propio del ítem cuando lo tiene', () => {
+    assert.equal(stockLevel(6, 10), 'low');
+    assert.equal(stockLevel(3, 2), 'available');
+    assert.equal(stockLevel(0, 0), 'out');
+  });
+
+  it('interpreta fechas dd/mm/aaaa y rechaza las que no existen', () => {
+    assert.equal(parseDateInput('05/11/2026').getDate(), 5);
+    assert.equal(parseDateInput('5/11/26').getFullYear(), 2026);
+    assert.equal(parseDateInput('31/02/2026'), null);
+    assert.equal(parseDateInput('hoy'), null);
+  });
+
+  it('incluye el último día completo de un rango', () => {
+    const range = monthRange(-1, new Date(2026, 10, 6));
+    assert.equal(range.from.getMonth(), 9);
+    assert.equal(range.to.getDate(), 31);
+    assert.ok(isInRange(new Date(2026, 9, 31, 23, 59).getTime(), range));
+    assert.ok(!isInRange(new Date(2026, 10, 1).getTime(), range));
+    assert.ok(!isInRange(new Date(2026, 8, 30).getTime(), range));
+    assert.ok(isInRange(0, { from: null, to: null }));
   });
 
   it('acepta fechas viejas guardadas como texto', () => {

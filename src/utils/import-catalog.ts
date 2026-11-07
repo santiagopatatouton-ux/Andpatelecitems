@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 
 import type { CatalogTree } from './catalog-tree';
+import { readWorkbook } from './read-workbook';
 
 /**
  * Formato esperado:
@@ -20,6 +21,12 @@ export interface ImportResult {
   itemCount: number;
   categoryCount: number;
   errors: string[];
+}
+
+/** Excel guarda 2,5 como número: se vuelve a escribir con coma, igual que en el catálogo. */
+function cellText(cell: unknown): string {
+  if (cell == null) return '';
+  return typeof cell === 'number' ? String(cell).replace('.', ',') : String(cell).trim();
 }
 
 const failure = (message: string): ImportResult => ({
@@ -67,7 +74,7 @@ function addRow(tree: CatalogTree, cells: string[]) {
 export function parseCatalogExcel(data: string | ArrayBuffer, isBase64 = false): ImportResult {
   let rows: unknown[][];
   try {
-    const workbook = XLSX.read(data, { type: isBase64 ? 'base64' : 'array' });
+    const workbook = readWorkbook(data, isBase64);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     if (!sheet) return failure('El archivo no tiene hojas.');
     rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
@@ -85,7 +92,7 @@ export function parseCatalogExcel(data: string | ArrayBuffer, isBase64 = false):
   let categoryCount = 0;
 
   rows.slice(1).forEach((row, index) => {
-    const cells = Array.from(row, (cell) => (cell == null ? '' : String(cell).trim())).filter(Boolean);
+    const cells = Array.from(row, cellText).filter(Boolean);
     if (cells.length === 0) return;
 
     if (cells.length === 1) {

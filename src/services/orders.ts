@@ -2,9 +2,12 @@ import {
   addDoc,
   collection,
   doc,
+  getDocs,
+  query,
   runTransaction,
   serverTimestamp,
   updateDoc,
+  where,
 } from 'firebase/firestore';
 
 import { db } from '@/lib/firebase';
@@ -16,6 +19,7 @@ export interface OrderItem {
   path: string[];
   name: string;
   quantity: number;
+  unit?: string;
 }
 
 export interface Order {
@@ -25,6 +29,8 @@ export interface Order {
   items: OrderItem[];
   notes: string;
   status: 'pending' | 'approved' | 'rejected';
+  obraId?: string;
+  nombreObra?: string;
   createdAt: never;
   resolvedBy?: string;
   resolvedByName?: string;
@@ -45,15 +51,33 @@ export class OrderShortageError extends Error {
   }
 }
 
-export function createOrder(user: Actor, items: OrderItem[], notes: string) {
+export function createOrder(
+  user: Actor,
+  items: OrderItem[],
+  notes: string,
+  obra: { id: string; nombre: string } | null
+) {
   return addDoc(collection(db, 'orders'), {
     userId: user.uid,
     userName: user.displayName,
-    items: items.map(({ path, name, quantity }) => ({ path, name, quantity })),
+    items: items.map(({ path, name, quantity, unit }) => ({
+      path,
+      name,
+      quantity,
+      ...(unit ? { unit } : {}),
+    })),
     notes,
+    ...(obra ? { obraId: obra.id, nombreObra: obra.nombre } : {}),
     status: 'pending',
     createdAt: serverTimestamp(),
   });
+}
+
+/** Pedidos pendientes con ítems dentro de una ruta. Renombrarla los dejaría sin stock. */
+export async function countPendingOrdersUnder(base: string[]): Promise<number> {
+  const pending = await getDocs(query(collection(db, 'orders'), where('status', '==', 'pending')));
+  const isUnder = (item: OrderItem) => base.every((name, index) => item.path[index] === name);
+  return pending.docs.filter((order) => (order.data().items ?? []).some(isUnder)).length;
 }
 
 /**
@@ -92,6 +116,7 @@ export async function approveOrder(order: Order, admin: Actor) {
         stockBefore: levels[index],
         stockAfter,
         notes: order.notes ? `Pedido aprobado: ${order.notes}` : 'Pedido aprobado',
+        ...(order.obraId ? { obraId: order.obraId, nombreObra: order.nombreObra } : {}),
         timestamp: serverTimestamp(),
         userId: order.userId,
         userName: order.userName,

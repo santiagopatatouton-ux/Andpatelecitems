@@ -12,6 +12,8 @@ export interface StockInfo {
   unitOfMeasure?: string;
   unitCost?: number | null;
   imageUrl?: string | null;
+  minStock?: number;
+  code?: string;
 }
 
 export interface CatalogItem extends CatalogEntry {
@@ -19,6 +21,9 @@ export interface CatalogItem extends CatalogEntry {
   stock: number;
   level: StockLevel;
   unitOfMeasure?: string;
+  unitCost?: number | null;
+  minStock?: number;
+  code?: string;
 }
 
 interface CatalogContextValue {
@@ -45,8 +50,12 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   const uid = userProfile?.uid;
   const [tree, setTree] = useState<CatalogTree | null>(null);
   const [stockById, setStockById] = useState<Record<string, StockInfo>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [treeLoaded, setTreeLoaded] = useState(false);
+  const [stockLoaded, setStockLoaded] = useState(false);
+  const [treeError, setTreeError] = useState(false);
+  const [stockError, setStockError] = useState(false);
+  const loading = !treeLoaded || !stockLoaded;
+  const error = treeError || stockError;
 
   useEffect(() => {
     if (!uid) return;
@@ -55,13 +64,13 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
       doc(db, 'catalog', 'tree'),
       (snapshot) => {
         setTree((snapshot.data() ?? {}) as CatalogTree);
-        setError(false);
-        setLoading(false);
+        setTreeError(false);
+        setTreeLoaded(true);
       },
       (failure) => {
         console.error('Error loading catalog:', failure);
-        setError(true);
-        setLoading(false);
+        setTreeError(true);
+        setTreeLoaded(true);
       }
     );
 
@@ -73,8 +82,14 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
           next[stockDoc.id] = stockDoc.data() as StockInfo;
         });
         setStockById(next);
+        setStockError(false);
+        setStockLoaded(true);
       },
-      (failure) => console.error('Error loading stock:', failure)
+      (failure) => {
+        console.error('Error loading stock:', failure);
+        setStockError(true);
+        setStockLoaded(true);
+      }
     );
 
     return () => {
@@ -92,8 +107,11 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
         ...entry,
         id,
         stock,
-        level: stockLevel(stock),
+        level: stockLevel(stock, info?.minStock),
         unitOfMeasure: info?.unitOfMeasure,
+        unitCost: info?.unitCost,
+        minStock: info?.minStock,
+        code: info?.code,
       };
     });
 

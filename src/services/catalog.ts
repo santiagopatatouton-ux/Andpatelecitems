@@ -1,9 +1,10 @@
-import { doc, runTransaction, setDoc } from 'firebase/firestore';
+import { doc, runTransaction } from 'firebase/firestore';
 
 import { db } from '@/lib/firebase';
 import { CATALOG_TREE } from '@/utils/catalog-data';
 import {
   addEntries,
+  CatalogError,
   cloneInto,
   mergeTrees,
   removeEntry,
@@ -41,7 +42,15 @@ export async function importCatalog(imported: CatalogTree) {
   return conflicts;
 }
 
-export const seedBaseCatalog = () => setDoc(treeRef, CATALOG_TREE);
+/** Carga el catálogo base solo si sigue vacío: nunca reemplaza uno con datos. */
+export const seedBaseCatalog = () =>
+  runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(treeRef);
+    if (Object.keys(snapshot.data() ?? {}).length) {
+      throw new CatalogError('El catálogo ya tiene datos.');
+    }
+    transaction.set(treeRef, CATALOG_TREE);
+  });
 
 /**
  * Renombra una entrada y mueve el stock de todo lo que cuelga de ella. El id de cada
@@ -60,6 +69,11 @@ export async function renameCatalogEntry(parentPath: string[], oldName: string, 
     snapshots.forEach((snapshot, index) => {
       if (!snapshot.exists()) return;
       const newPath = [...parentPath, newName, ...paths[index].slice(oldBase.length)];
+      // "3/4" y "3.4" comparten documento: ahí solo cambia la ruta guardada.
+      if (pathToDocId(newPath) === snapshot.id) {
+        transaction.update(snapshot.ref, { path: newPath });
+        return;
+      }
       transaction.set(stockRef(newPath), { ...snapshot.data(), path: newPath });
       transaction.delete(snapshot.ref);
     });

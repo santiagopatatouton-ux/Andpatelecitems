@@ -1,5 +1,5 @@
 import { useFonts } from 'expo-font';
-import { Stack, usePathname, useRouter } from 'expo-router';
+import { Stack, useGlobalSearchParams, usePathname, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -36,13 +36,19 @@ function RootNavigator() {
   const { user, userProfile, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const { path, next } = useGlobalSearchParams<{ path?: string; next?: string }>();
   const onLogin = pathname === '/login';
 
   useEffect(() => {
     if (loading) return;
-    if (!user && !onLogin) router.replace('/login');
-    else if (user && onLogin) router.replace('/');
-  }, [user, loading, onLogin, router]);
+    if (!user && !onLogin) {
+      // Un QR abre un ítem: después del login hay que volver a él.
+      const itemPath = pathname === '/action' ? path : undefined;
+      router.replace({ pathname: '/login', params: itemPath ? { next: itemPath } : {} });
+    } else if (user && onLogin) {
+      router.replace(next ? { pathname: '/action', params: { path: next } } : '/');
+    }
+  }, [user, loading, onLogin, pathname, path, next, router]);
 
   return (
     <AppShell>

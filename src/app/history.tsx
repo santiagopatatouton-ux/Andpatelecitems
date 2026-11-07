@@ -15,10 +15,13 @@ import { useFeedback } from '@/components/ui/feedback';
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
+  CircleAlert,
+  ClipboardList,
   FileSpreadsheet,
   History as HistoryIcon,
   PackagePlus,
   Search,
+  Undo2,
   type IconComponent,
 } from '@/components/ui/icons';
 import {
@@ -31,11 +34,29 @@ import {
   Loading,
 } from '@/components/ui/primitives';
 import { useAuth } from '@/context/auth-context';
+import { useCatalog } from '@/context/catalog-context';
 import { db } from '@/lib/firebase';
+import {
+  AlreadyReversedError,
+  InsufficientStockError,
+  movementDelta,
+  reverseMovement,
+} from '@/services/stock';
+import { isItemPath } from '@/utils/catalog-tree';
 import { colors, iconSize, radius, spacing, toneColors, type Tone } from '@/theme/tokens';
 import { exportAccountingExcel } from '@/utils/export-accounting';
 import { ACTION_LABELS, exportFilename, exportMovementsToExcel, type MovementRow } from '@/utils/export-excel';
-import { formatDateTime, formatMoney, formatNumber, toMillis } from '@/utils/format';
+import {
+  formatDateTime,
+  formatMoney,
+  formatNumber,
+  isInRange,
+  matchesSearch,
+  monthRange,
+  parseDateInput,
+  toMillis,
+  type DateRange,
+} from '@/utils/format';
 import { shareExcel } from '@/utils/share-file';
 
 /** Movimientos en pantalla para un admin. Los Excel incluyen todo el historial. */
@@ -55,10 +76,21 @@ const ACTION_FILTERS: { value: ActionFilter; label: string }[] = [
   { value: 'devolver', label: 'Devoluciones' },
 ];
 
+type PeriodFilter = 'all' | 'month' | 'lastMonth' | 'custom';
+
+const PERIOD_FILTERS: { value: PeriodFilter; label: string }[] = [
+  { value: 'all', label: 'Todas las fechas' },
+  { value: 'month', label: 'Este mes' },
+  { value: 'lastMonth', label: 'Mes pasado' },
+  { value: 'custom', label: 'Elegir fechas' },
+];
+
 const ACTION_STYLES: Record<string, { icon: IconComponent; tone: Tone; sign: string }> = {
   retirar: { icon: ArrowUpFromLine, tone: 'danger', sign: '−' },
   devolver: { icon: ArrowDownToLine, tone: 'success', sign: '+' },
   compra: { icon: PackagePlus, tone: 'info', sign: '+' },
+  ajuste: { icon: ClipboardList, tone: 'warning', sign: '' },
+  anulacion: { icon: Undo2, tone: 'warning', sign: '' },
 };
 
 function toMovement(id: string, data: Record<string, unknown>): Movement {
@@ -68,8 +100,17 @@ function toMovement(id: string, data: Record<string, unknown>): Movement {
 const newestFirst = (a: Movement, b: Movement) =>
   toMillis(b.timestamp as never) - toMillis(a.timestamp as never);
 
-function MovementRowView({ movement }: { movement: Movement }) {
+function MovementRowView({
+  movement,
+  reversed,
+  onReverse,
+}: {
+  movement: Movement;
+  reversed: boolean;
+  onReverse?: () => void;
+}) {
   const style = ACTION_STYLES[movement.action] ?? ACTION_STYLES.retirar;
+  const delta = movementDelta(movement);
   const palette = toneColors[style.tone];
   const Icon = style.icon;
   const name = movement.path[movement.path.length - 1] ?? 'Ítem';
@@ -85,7 +126,7 @@ function MovementRowView({ movement }: { movement: Movement }) {
             {name}
           </AppText>
           <AppText variant="bodyStrong" color={palette.fg} tabular>
-            {`${style.sign}${formatNumber(movement.quantity)}`}
+            {`${delta < 0 ? '−' : '+'}${formatNumber(Math.abs(delta))}`}
           </AppText>
         </View>
         <AppText variant="small" color={colors.textMuted} numberOfLines={1}>
@@ -96,6 +137,7 @@ function MovementRowView({ movement }: { movement: Movement }) {
             ACTION_LABELS[movement.action] ?? movement.action,
             movement.userName || 'Desconocido',
             formatDateTime(movement.timestamp as never),
+            ...(movement.nombreObra ? [`Obra: ${movement.nombreObra}`] : []),
           ].join(' · ')}
         </AppText>
         <AppText variant="small" color={colors.textMuted} tabular>
@@ -108,6 +150,15 @@ function MovementRowView({ movement }: { movement: Movement }) {
             {movement.notes}
           </AppText>
         ) : null}
+        {reversed ? (
+          <AppText variant="smallStrong" color={colors.warning}>
+            Anulado
+          </AppText>
+        ) : onReverse ? (
+          <View style={styles.rowActions}>
+            <Button label="Anular" variant="ghost" icon={Undo2} onPress={onReverse} />
+          </View>
+        ) : null}
       </View>
     </Card>
   );
@@ -115,16 +166,21 @@ function MovementRowView({ movement }: { movement: Movement }) {
 
 export default function HistoryScreen() {
   const { isAdmin, userProfile } = useAuth();
-  const { toast } = useFeedback();
+  const { toast, confirm } = useFeedback();
+  const { tree } = useCatalog();
   const frame = useContentFrame();
   const uid = userProfile?.uid;
 
   const [movements, setMovements] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [exporting, setExporting] = useState<'history' | 'accounting' | null>(null);
   const [actionFilter, setActionFilter] = useState<ActionFilter>('all');
   const [userFilter, setUserFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [period, setPeriod] = useState<PeriodFilter>('all');
+  const [fromText, setFromText] = useState('');
+  const [toText, setToText] = useState('');
   const [users, setUsers] = useState<{ uid: string; displayName: string }[]>([]);
 
   useEffect(() => {
@@ -141,12 +197,29 @@ export default function HistoryScreen() {
       .catch((error) => console.error('Error loading users:', error));
   }, [isAdmin]);
 
+  // Con filtros activos se busca en todo el historial, no solo en lo más reciente.
+  const filtering =
+    Boolean(search.trim()) || actionFilter !== 'all' || userFilter !== 'all' || period !== 'all';
+
+  const range = useMemo<DateRange>(() => {
+    if (period === 'month') return monthRange(0);
+    if (period === 'lastMonth') return monthRange(-1);
+    if (period === 'custom') return { from: parseDateInput(fromText), to: parseDateInput(toText) };
+    return { from: null, to: null };
+  }, [period, fromText, toText]);
+  const inRange = useMemo(
+    () => (movement: Movement) => isInRange(toMillis(movement.timestamp as never), range),
+    [range]
+  );
+
   useEffect(() => {
     if (!uid) return;
     const ref = collection(db, 'movements');
-    const source = isAdmin
-      ? query(ref, orderBy('timestamp', 'desc'), limit(VISIBLE_LIMIT))
-      : query(ref, where('userId', '==', uid));
+    const source = !isAdmin
+      ? query(ref, where('userId', '==', uid))
+      : filtering
+        ? query(ref, orderBy('timestamp', 'desc'))
+        : query(ref, orderBy('timestamp', 'desc'), limit(VISIBLE_LIMIT));
 
     return onSnapshot(
       source,
@@ -154,24 +227,60 @@ export default function HistoryScreen() {
         setMovements(
           snapshot.docs.map((item) => toMovement(item.id, item.data())).sort(newestFirst)
         );
+        setFailed(false);
         setLoading(false);
       },
       (error) => {
         console.error('Error loading movements:', error);
+        setFailed(true);
         setLoading(false);
       }
     );
-  }, [isAdmin, uid]);
+  }, [isAdmin, uid, filtering]);
 
   const matchesFilters = useMemo(() => {
-    const text = search.trim().toLowerCase();
     return (movement: Movement) =>
       (actionFilter === 'all' || movement.action === actionFilter) &&
       (userFilter === 'all' || movement.userId === userFilter) &&
-      (!text || movement.path.join(' ').toLowerCase().includes(text));
-  }, [actionFilter, userFilter, search]);
+      inRange(movement) &&
+      matchesSearch(movement.path.join(' '), search);
+  }, [actionFilter, userFilter, search, inRange]);
 
   const visible = movements.filter(matchesFilters);
+  const reversedIds = new Set(movements.flatMap((movement) => movement.reversalOf ?? []));
+
+  const canReverse = (movement: Movement) =>
+    isAdmin &&
+    movement.action !== 'anulacion' &&
+    movementDelta(movement) !== 0 &&
+    !!tree &&
+    isItemPath(tree, movement.path);
+
+  const handleReverse = async (movement: Movement) => {
+    if (!userProfile) return;
+    const name = movement.path[movement.path.length - 1];
+    const delta = movementDelta(movement);
+    const accepted = await confirm({
+      title: 'Anular movimiento',
+      message: `Se va a ${delta < 0 ? 'devolver' : 'restar'} ${formatNumber(Math.abs(delta))} al stock de ${name}. El movimiento original queda en el historial.`,
+      confirmLabel: 'Anular',
+      destructive: true,
+    });
+    if (!accepted) return;
+    try {
+      await reverseMovement(movement, userProfile);
+      toast('Movimiento anulado.');
+    } catch (error) {
+      if (error instanceof AlreadyReversedError) {
+        toast('Ese movimiento ya estaba anulado.', 'warning');
+      } else if (error instanceof InsufficientStockError) {
+        toast(`No se puede anular: solo hay ${formatNumber(error.available)} en stock.`, 'danger');
+      } else {
+        console.error('Error reversing movement:', error);
+        toast('No se pudo anular el movimiento.', 'danger');
+      }
+    }
+  };
 
   /** Para un admin baja todo el historial, no solo lo que está en pantalla. */
   const loadAll = async () => {
@@ -223,7 +332,9 @@ export default function HistoryScreen() {
               variant="secondary"
               icon={FileSpreadsheet}
               loading={exporting === 'accounting'}
-              onPress={() => runExport('accounting', exportAccountingExcel, (rows) => rows)}
+              onPress={() =>
+                runExport('accounting', exportAccountingExcel, (rows) => rows.filter(inRange))
+              }
             />
           )}
         </View>
@@ -247,6 +358,38 @@ export default function HistoryScreen() {
           ))}
         </ScrollView>
 
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+          {PERIOD_FILTERS.map((option) => (
+            <Chip
+              key={option.value}
+              label={option.label}
+              selected={period === option.value}
+              onPress={() => setPeriod(option.value)}
+            />
+          ))}
+        </ScrollView>
+
+        {period === 'custom' && (
+          <View style={styles.dates}>
+            <Field
+              label="Desde"
+              value={fromText}
+              onChangeText={setFromText}
+              placeholder="dd/mm/aaaa"
+              containerStyle={styles.flex}
+              error={fromText && !range.from ? 'Fecha inválida' : undefined}
+            />
+            <Field
+              label="Hasta"
+              value={toText}
+              onChangeText={setToText}
+              placeholder="dd/mm/aaaa"
+              containerStyle={styles.flex}
+              error={toText && !range.to ? 'Fecha inválida' : undefined}
+            />
+          </View>
+        )}
+
         {isAdmin && users.length > 0 && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
             <Chip label="Todos" selected={userFilter === 'all'} onPress={() => setUserFilter('all')} />
@@ -264,16 +407,28 @@ export default function HistoryScreen() {
 
       {loading ? (
         <Loading label="Cargando historial" />
+      ) : failed ? (
+        <EmptyState
+          icon={CircleAlert}
+          title="No se pudo cargar el historial"
+          message="Revisá la conexión y volvé a entrar."
+        />
       ) : (
         <FlatList
           data={visible}
           keyExtractor={(movement) => movement.id}
-          renderItem={({ item }) => <MovementRowView movement={item} />}
+          renderItem={({ item }) => (
+            <MovementRowView
+              movement={item}
+              reversed={reversedIds.has(item.id)}
+              onReverse={canReverse(item) ? () => handleReverse(item) : undefined}
+            />
+          )}
           contentContainerStyle={[frame, styles.list]}
           ListHeaderComponent={
             <AppText variant="small" color={colors.textMuted}>
               {`${visible.length} ${visible.length === 1 ? 'movimiento' : 'movimientos'}`}
-              {isAdmin && movements.length >= VISIBLE_LIMIT ? ` · últimos ${VISIBLE_LIMIT}` : ''}
+              {isAdmin && !filtering && movements.length >= VISIBLE_LIMIT ? ` · últimos ${VISIBLE_LIMIT}` : ''}
             </AppText>
           }
           ListEmptyComponent={
@@ -309,4 +464,6 @@ const styles = StyleSheet.create({
   },
   rowBody: { flex: 1, minWidth: 0, gap: 2 },
   rowTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  rowActions: { flexDirection: 'row', justifyContent: 'flex-end' },
+  dates: { flexDirection: 'row', gap: spacing.sm },
 });

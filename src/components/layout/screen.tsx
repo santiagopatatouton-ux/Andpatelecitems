@@ -38,7 +38,6 @@ function AccountButton() {
       accessibilityLabel="Mi cuenta"
       onPress={() => router.push('/account' as never)}
       style={styles.account}
-      hitSlop={6}
     >
       <AppText variant="smallStrong" color={colors.onInk}>
         {initials(userProfile?.displayName ?? '')}
@@ -118,8 +117,8 @@ const styles = StyleSheet.create({
   back: { marginLeft: -spacing.sm },
   scrollContent: { gap: spacing.lg, paddingTop: spacing.xs, paddingBottom: spacing.xxl },
   account: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     borderRadius: radius.full,
     backgroundColor: colors.ink,
     alignItems: 'center',

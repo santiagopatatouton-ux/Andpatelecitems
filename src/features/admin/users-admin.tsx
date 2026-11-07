@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { useFeedback } from '@/components/ui/feedback';
-import { KeyRound, Pencil, Shield, Trash2, User } from '@/components/ui/icons';
+import { CircleCheck, CircleX, KeyRound, Pencil, Shield, User } from '@/components/ui/icons';
 import {
   AppText,
   Badge,
@@ -20,8 +20,8 @@ import { useAuth, type UserProfile } from '@/context/auth-context';
 import { db } from '@/lib/firebase';
 import {
   createUserAccount,
-  deleteUserProfile,
   sendPasswordReset,
+  setUserDisabled,
   updateUserName,
   updateUserRole,
   type Role,
@@ -37,7 +37,7 @@ const ROLE_OPTIONS: { value: Role; label: string; icon: typeof User }[] = [
 ];
 
 const CREATE_ERRORS: Record<string, string> = {
-  'auth/email-already-in-use': 'Ya existe una cuenta con ese email.',
+  'auth/email-already-in-use': 'Ya existe una cuenta con ese email. Si está desactivada, reactivala.',
   'auth/invalid-email': 'El formato del email no es válido.',
   'auth/weak-password': 'La contraseña es demasiado débil.',
 };
@@ -50,7 +50,7 @@ function UserRow({ user }: { user: UserProfile }) {
   const [saving, setSaving] = useState(false);
   const isSelf = user.uid === userProfile?.uid;
 
-  const audit = (action: 'edit_user' | 'change_role' | 'delete_user', details: string) =>
+  const audit = (action: 'edit_user' | 'change_role', details: string) =>
     logAuditEvent({
       action,
       adminId: userProfile?.uid ?? '',
@@ -111,20 +111,23 @@ function UserRow({ user }: { user: UserProfile }) {
     }
   };
 
-  const handleDelete = async () => {
+  const handleToggleDisabled = async () => {
+    const disabled = !user.disabled;
     const accepted = await confirm({
-      title: 'Eliminar usuario',
-      message: `${user.displayName} ya no va a poder acceder a la app. Su historial se conserva.`,
-      confirmLabel: 'Eliminar',
-      destructive: true,
+      title: disabled ? 'Desactivar usuario' : 'Reactivar usuario',
+      message: disabled
+        ? `${user.displayName} ya no va a poder acceder a la app. Su historial se conserva y se puede reactivar.`
+        : `${user.displayName} va a volver a tener acceso con su contraseña de siempre.`,
+      confirmLabel: disabled ? 'Desactivar' : 'Reactivar',
+      destructive: disabled,
     });
     if (!accepted) return;
     try {
-      await deleteUserProfile(user.uid);
-      await audit('delete_user', `Email: ${user.email}`);
+      await setUserDisabled(user.uid, disabled);
+      await audit('edit_user', disabled ? 'Cuenta desactivada' : 'Cuenta reactivada');
     } catch (error) {
-      console.error('Error deleting user:', error);
-      toast('No se pudo eliminar el usuario.', 'danger');
+      console.error('Error updating user:', error);
+      toast('No se pudo actualizar el usuario.', 'danger');
     }
   };
 
@@ -139,10 +142,14 @@ function UserRow({ user }: { user: UserProfile }) {
             {user.email}
           </AppText>
         </View>
-        <Badge
-          label={user.role === 'admin' ? 'Admin' : 'Empleado'}
-          tone={user.role === 'admin' ? 'info' : 'neutral'}
-        />
+        {user.disabled ? (
+          <Badge label="Desactivado" tone="danger" />
+        ) : (
+          <Badge
+            label={user.role === 'admin' ? 'Admin' : 'Empleado'}
+            tone={user.role === 'admin' ? 'info' : 'neutral'}
+          />
+        )}
       </View>
 
       {editing ? (
@@ -169,10 +176,10 @@ function UserRow({ user }: { user: UserProfile }) {
                 onPress={handleToggleRole}
               />
               <IconButton
-                icon={Trash2}
-                label={`Eliminar a ${user.displayName}`}
-                color={colors.danger}
-                onPress={handleDelete}
+                icon={user.disabled ? CircleCheck : CircleX}
+                label={`${user.disabled ? 'Reactivar' : 'Desactivar'} a ${user.displayName}`}
+                color={user.disabled ? colors.success : colors.danger}
+                onPress={handleToggleDisabled}
               />
             </>
           )}
@@ -199,7 +206,14 @@ export function UsersAdmin() {
       onSnapshot(
         collection(db, 'users'),
         (snapshot) => {
-          const list = snapshot.docs.map((item) => ({ ...item.data(), uid: item.id }) as UserProfile);
+          const list = snapshot.docs.map(
+            (item) =>
+              ({
+                ...item.data(),
+                uid: item.id,
+                displayName: item.data().displayName ?? item.data().email ?? 'Sin nombre',
+              }) as UserProfile
+          );
           setUsers(list.sort((a, b) => a.displayName.localeCompare(b.displayName, 'es')));
           setLoading(false);
         },
@@ -250,7 +264,7 @@ export function UsersAdmin() {
 
   return (
     <>
-      <SectionTitle title="Usuarios" hint={`${users.length} con acceso`} />
+      <SectionTitle title="Usuarios" hint={`${users.filter((user) => !user.disabled).length} con acceso`} />
       <Card style={styles.list}>
         {users.map((user, index) => (
           <View key={user.uid}>

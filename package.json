@@ -25,6 +25,7 @@
     "expo-web-browser": "~57.0.1",
     "firebase": "^12.16.0",
     "lucide-react-native": "^1.70.0",
+    "qrcode-generator": "^2.0.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.0",
